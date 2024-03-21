@@ -1,11 +1,27 @@
 package com.example.androidcoolboxryhma2
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.setContent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.compose.material3.Surface
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        setContent {
+            val navController = rememberNavController()
+
+            NavHost(navController = navController, startDestination = "loginScreen") {
+            composable("loginScreen"){
+                LoginScreen {
+
+                }
+            }
+            }
+        }
     }
 }
