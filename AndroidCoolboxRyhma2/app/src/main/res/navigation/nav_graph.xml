@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/loginScreen"
-        android:name="com.example.androidcoolboxryhma2.LoginScreen.kt"
+        android:name="com.example.androidcoolboxryhma2.LoginFragment"
         android:label="Login Screen"
         tools:layout="@layout/fragment_login" />
 
