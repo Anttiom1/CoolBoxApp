@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidcoolboxryhma2.viewmodel.GraphTestViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -42,6 +44,7 @@ import java.nio.file.WatchEvent
 
 @Composable
 fun GraphTest(onLoginClick: () -> Unit){
+    val vm: GraphTestViewModel = viewModel()
 
     val refreshDataset = remember { mutableIntStateOf(0) }
     val modelProducer = remember { ChartEntryModelProducer() }
@@ -126,6 +129,13 @@ fun GraphTest(onLoginClick: () -> Unit){
             onClick = {refreshDataset.intValue++}
         ) {
             Text(text = "Refresh")
+
+        }
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { vm.getLatestTemperatureIndoors() }
+        ) {
+            Text(text = "Get temperature")
 
         }
     }
