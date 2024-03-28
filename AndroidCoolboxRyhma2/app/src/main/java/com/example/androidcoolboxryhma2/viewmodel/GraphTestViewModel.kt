@@ -7,20 +7,23 @@ import com.example.androidcoolboxryhma2.model.TemperaturesState
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.example.androidcoolboxryhma2.api.temperatureService
-import com.example.androidcoolboxryhma2.model.TemperatureData
-import com.example.androidcoolboxryhma2.model.TemperatureItem
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 class GraphTestViewModel: ViewModel() {
     private val _temperaturesState = mutableStateOf(TemperaturesState())
     val temperatureState: State<TemperaturesState> = _temperaturesState
 
+    // alustetaan listaan kaksi arvoa jotta line chart voidaan näyttää viiva arvojen välille
+    init {
+        getLatestTemperatureIndoors()
+        getLatestTemperatureIndoors()
+    }
     fun getLatestTemperatureIndoors(){
         viewModelScope.launch {
             try {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
                 val res = temperatureService.getLatestTemperatureIndoors()
+                _temperaturesState.value = _temperaturesState.value.copy(list = _temperaturesState.value.list + res.data)
                 Log.d("antti", res.toString())
 
             }
@@ -33,5 +36,4 @@ class GraphTestViewModel: ViewModel() {
             }
         }
     }
-
 }

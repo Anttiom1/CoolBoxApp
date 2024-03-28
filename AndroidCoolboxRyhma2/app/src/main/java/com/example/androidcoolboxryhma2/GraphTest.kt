@@ -50,10 +50,10 @@ fun GraphTest(onLoginClick: () -> Unit){
     val modelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
-
     val scrollState = rememberChartScrollState()
 
-    LaunchedEffect(key1 = refreshDataset.intValue){
+    // LaunchedEffect aktivoituu aina kun lista muuttuu
+    LaunchedEffect(key1 = vm.temperatureState.value.list){
         datasetForModel.clear()
         datasetLineSpec.clear()
         var xPos = 0f
@@ -71,9 +71,10 @@ fun GraphTest(onLoginClick: () -> Unit){
                 )
             )
         )
-        for(i in 1..10){
-            val randomYFloat = (1..1000).random().toFloat()
-            dataPoints.add(FloatEntry(x = xPos, y = randomYFloat))
+        // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
+        for(item in vm.temperatureState.value.list){
+            val floatValue = item.value.toFloat()
+            dataPoints.add(FloatEntry(x = xPos, y = floatValue))
             xPos += 1f
         }
 
@@ -112,7 +113,7 @@ fun GraphTest(onLoginClick: () -> Unit){
                             title = "Count of values",
                             tickLength = 0.dp,
                             valueFormatter = {value, _ ->
-                                ((value.toInt()) + 12).toString()
+                                ((value.toInt()) + 1).toString()
                             },
                             guideline = null
                         ),
@@ -124,13 +125,13 @@ fun GraphTest(onLoginClick: () -> Unit){
             }
 
         }
-        TextButton(
+        /*TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {refreshDataset.intValue++}
         ) {
             Text(text = "Refresh")
 
-        }
+        }*/
         TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = { vm.getLatestTemperatureIndoors() }
