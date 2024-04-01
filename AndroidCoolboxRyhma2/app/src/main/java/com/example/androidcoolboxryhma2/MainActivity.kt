@@ -20,7 +20,7 @@ import androidx.fragment.app.FragmentManager
 
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
 
 

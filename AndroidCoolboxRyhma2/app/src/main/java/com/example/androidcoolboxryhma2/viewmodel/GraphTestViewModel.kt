@@ -14,15 +14,15 @@ class GraphTestViewModel: ViewModel() {
     val temperatureState: State<TemperaturesState> = _temperaturesState
 
     // alustetaan listaan kaksi arvoa jotta line chart voidaan näyttää viiva arvojen välille
-    init {
+    /*init {
         getLatestTemperatureIndoors()
         getLatestTemperatureIndoors()
-    }
+    }*/
     fun getLatestTemperatureIndoors(){
         viewModelScope.launch {
             try {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
-                val res = temperatureService.getLatestTemperatureIndoors()
+                val res = temperatureService.getLatestTemperatureTest(14)
                 _temperaturesState.value = _temperaturesState.value.copy(list = _temperaturesState.value.list + res.data)
                 Log.d("antti", res.toString())
 

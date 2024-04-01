@@ -39,7 +39,10 @@ import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShader
 import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
+import com.patrykandpatrick.vico.core.extension.round
 import java.nio.file.WatchEvent
+import kotlin.math.pow
+import kotlin.math.round
 
 
 @Composable
@@ -51,6 +54,7 @@ fun GraphTest(onLoginClick: () -> Unit){
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
     val scrollState = rememberChartScrollState()
+
 
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list){
@@ -102,7 +106,7 @@ fun GraphTest(onLoginClick: () -> Unit){
                             title = "Top values",
                             tickLength = 0.dp,
                             valueFormatter = {value, _ ->
-                                value.toInt().toString()
+                                 round(value, 1).toString()
                             },
                             itemPlacer = AxisItemPlacer.Vertical.default(
                                 maxItemCount = 6
@@ -140,4 +144,9 @@ fun GraphTest(onLoginClick: () -> Unit){
 
         }
     }
+}
+
+fun round(value: Float, decimalPlaces: Int): Float {
+    val factor = 10.0.pow(decimalPlaces)
+    return (kotlin.math.round(value * factor) / factor).toFloat()
 }
