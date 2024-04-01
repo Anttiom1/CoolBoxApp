@@ -22,7 +22,7 @@ class GraphTestViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
-                val res = temperatureService.getLatestTemperatureTest(14)
+                val res = temperatureService.getDailyAverageTemperature(4, 1)
                 _temperaturesState.value = _temperaturesState.value.copy(list = _temperaturesState.value.list + res.data)
                 Log.d("antti", res.toString())
 

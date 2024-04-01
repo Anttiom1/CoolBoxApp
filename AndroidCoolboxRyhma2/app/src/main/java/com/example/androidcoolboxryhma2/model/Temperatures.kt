@@ -24,6 +24,8 @@ data class TemperatureItem(
     val minute: Int,
     val sec: Int
 )
+
 data class TemperatureData(
     val data: List<TemperatureItem>
 )
+

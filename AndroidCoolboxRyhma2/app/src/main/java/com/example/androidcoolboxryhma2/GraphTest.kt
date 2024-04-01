@@ -1,6 +1,7 @@
 package com.example.androidcoolboxryhma2
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Green
@@ -60,7 +62,6 @@ fun GraphTest(onLoginClick: () -> Unit){
     LaunchedEffect(key1 = vm.temperatureState.value.list){
         datasetForModel.clear()
         datasetLineSpec.clear()
-        var xPos = 0f
         val dataPoints = arrayListOf<FloatEntry>()
         datasetLineSpec.add(
             LineChart.LineSpec(
@@ -78,8 +79,9 @@ fun GraphTest(onLoginClick: () -> Unit){
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for(item in vm.temperatureState.value.list){
             val floatValue = item.value.toFloat()
-            dataPoints.add(FloatEntry(x = xPos, y = floatValue))
-            xPos += 1f
+            val xValue = item.hour.toFloat()
+            Log.d("mursu", xValue.toString())
+            dataPoints.add(FloatEntry(x = xValue, y = floatValue))
         }
 
         if(dataPoints.isNotEmpty()){
@@ -117,7 +119,7 @@ fun GraphTest(onLoginClick: () -> Unit){
                             title = "Count of values",
                             tickLength = 0.dp,
                             valueFormatter = {value, _ ->
-                                ((value.toInt()) + 1).toString()
+                                value.toString()
                             },
                             guideline = null
                         ),
