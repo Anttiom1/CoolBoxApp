@@ -3,6 +3,8 @@ package com.example.androidcoolboxryhma2
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
@@ -18,6 +22,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,10 +30,12 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -69,12 +76,28 @@ import kotlin.math.round
 fun GraphTest(onLoginClick: () -> Unit) {
     val vm: GraphTestViewModel = viewModel()
 
-    val refreshDataset = remember { mutableIntStateOf(0) }
     val modelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
     val scrollState = rememberChartScrollState()
+    val datePickerState = rememberDatePickerState()
+    val openDialog = remember { mutableStateOf(false) }
 
+    fun decreaseDay(){
+        datePickerState.setSelection(datePickerState.selectedDateMillis?.minus(
+            86400000
+        ))
+        vm.calculateDate(datePickerState.selectedDateMillis)
+        vm.getDailyAverageTemperature()
+    }
+
+    fun incrementDay(){
+        datePickerState.setSelection(datePickerState.selectedDateMillis?.plus(
+            86400000
+        ))
+        vm.calculateDate(datePickerState.selectedDateMillis)
+        vm.getDailyAverageTemperature()
+    }
 
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
@@ -108,18 +131,34 @@ fun GraphTest(onLoginClick: () -> Unit) {
         }
     }
 
-    val openDialog = remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .padding(8.dp)
             .fillMaxSize()) {
-            IconButton(onClick = { openDialog.value = true}) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
-            }
+            OutlinedTextField(value = vm.getDateString(),
+                onValueChange = { },
+                enabled = true,
+                leadingIcon = {IconButton(onClick = { openDialog.value = true}) {
+                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
+                }},
+                trailingIcon = {
+                    Row {
+                        IconButton(onClick = { decreaseDay() }) {
+                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous")
+                        }
+                        IconButton(onClick = { incrementDay() }) {
+                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
+                        }
+                    }
+                }
+
+                )
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (openDialog.value) {
-                val datePickerState = rememberDatePickerState()
+                datePickerState.selectedDateMillis?.let { Date(it).toString() }
+                    ?.let { Log.d("antti", it) }
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
@@ -203,6 +242,10 @@ fun GraphTest(onLoginClick: () -> Unit) {
         }*/
         }
     }
+}
+
+fun incrementDay(){
+
 }
 
 fun round(value: Float, decimalPlaces: Int): Float {

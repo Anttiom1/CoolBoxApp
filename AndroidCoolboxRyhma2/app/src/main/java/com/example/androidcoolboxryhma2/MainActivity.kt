@@ -32,16 +32,10 @@ class MainActivity : ComponentActivity() {
 
                     }
                 }
-                composable("testiScreen"){
-                    testiScreen() {
-
-                    }
                 }
             }
         }
     }
-
-}
 
 
     /******************
