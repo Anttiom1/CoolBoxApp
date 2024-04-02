@@ -3,21 +3,9 @@ package com.example.androidcoolboxryhma2
 import androidx.activity.compose.setContent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.compose.material3.Surface
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationView
-import androidx.fragment.app.FragmentManager
-
 
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +29,11 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("graphTest"){
                     GraphTest {
+
+                    }
+                }
+                composable("testiScreen"){
+                    testiScreen() {
 
                     }
                 }

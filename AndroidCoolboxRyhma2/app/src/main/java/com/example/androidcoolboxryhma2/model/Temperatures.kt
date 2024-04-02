@@ -28,4 +28,3 @@ data class TemperatureItem(
 data class TemperatureData(
     val data: List<TemperatureItem>
 )
-
