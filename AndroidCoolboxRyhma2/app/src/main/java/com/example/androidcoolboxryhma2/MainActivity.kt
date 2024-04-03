@@ -23,19 +23,21 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = "graphTest") {
 
                 composable("loginScreen") {
-                    LoginScreen {
-
-                    }
+                    LoginScreen(onLoginClick = {})
+                }
+                composable("homeScreen"){
+                    HomeScreen()
                 }
                 composable("graphTest"){
-                    GraphTest {
-
-                    }
-                }
+                    GraphTest(
+                        goToHome = {
+                        navController.navigate("homeScreen")
+                    })
                 }
             }
         }
     }
+}
 
 
     /******************

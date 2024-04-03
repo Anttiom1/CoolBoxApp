@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
@@ -23,9 +25,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +78,7 @@ import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GraphTest(onLoginClick: () -> Unit) {
+fun GraphTest(goToHome: () -> Unit) {
     val vm: GraphTestViewModel = viewModel()
 
     val modelProducer = remember { ChartEntryModelProducer() }
@@ -133,113 +138,140 @@ fun GraphTest(onLoginClick: () -> Unit) {
 
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize()) {
-            OutlinedTextField(value = vm.getDateString(),
-                onValueChange = { },
-                enabled = true,
-                leadingIcon = {IconButton(onClick = { openDialog.value = true}) {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
-                }},
-                trailingIcon = {
-                    Row {
-                        IconButton(onClick = { decreaseDay() }) {
-                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous")
+        Scaffold (
+            topBar = {
+                TopAppBar (
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
                         }
-                        IconButton(onClick = { incrementDay() }) {
-                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
+                    },
+                        title = {
+                    Text(text = "Graph")
+                },
+                    actions = {
+                        IconButton(onClick = {goToHome()}) {
+                            Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
+                        }
+                    })
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(it)
+                    .padding(8.dp)
+                    .fillMaxSize()
+            ) {
+                OutlinedTextField(value = vm.getDateString(),
+                    onValueChange = { },
+                    enabled = true,
+                    leadingIcon = {
+                        IconButton(onClick = { openDialog.value = true }) {
+                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
+                        }
+                    },
+                    trailingIcon = {
+                        Row {
+                            IconButton(onClick = { decreaseDay() }) {
+                                Icon(
+                                    Icons.Default.KeyboardArrowLeft,
+                                    contentDescription = "Previous"
+                                )
+                            }
+                            IconButton(onClick = { incrementDay() }) {
+                                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
+                            }
                         }
                     }
-                }
 
                 )
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            if (openDialog.value) {
-                datePickerState.selectedDateMillis?.let { Date(it).toString() }
-                    ?.let { Log.d("antti", it) }
-                val confirmEnabled = remember {
-                    derivedStateOf { datePickerState.selectedDateMillis != null }
-                }
-                DatePickerDialog(
-                    onDismissRequest = {
-                        openDialog.value = false
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                openDialog.value = false
-                                vm.calculateDate(datePickerState.selectedDateMillis)
-                                vm.getDailyAverageTemperature()
-                            },
-                            enabled = confirmEnabled.value
-                        ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                openDialog.value = false
+                if (openDialog.value) {
+                    datePickerState.selectedDateMillis?.let { Date(it).toString() }
+                        ?.let { Log.d("antti", it) }
+                    val confirmEnabled = remember {
+                        derivedStateOf { datePickerState.selectedDateMillis != null }
+                    }
+                    DatePickerDialog(
+                        onDismissRequest = {
+                            openDialog.value = false
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    openDialog.value = false
+                                    vm.calculateDate(datePickerState.selectedDateMillis)
+                                    vm.getDailyAverageTemperature()
+                                },
+                                enabled = confirmEnabled.value
+                            ) {
+                                Text("OK")
                             }
-                        ) {
-                            Text("Cancel")
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    openDialog.value = false
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .align(Alignment.CenterHorizontally)
+                        .height(220.dp)
+                ) {
+                    if (datasetForModel.isNotEmpty()) {
+                        ProvideChartStyle {
+                            Chart(
+                                chart = lineChart(
+                                    lines = datasetLineSpec
+                                ),
+                                chartModelProducer = modelProducer,
+
+                                startAxis = rememberStartAxis(
+                                    title = "Top values",
+                                    tickLength = 0.dp,
+                                    valueFormatter = { value, _ ->
+                                        round(value, 1).toString()
+                                    },
+                                    itemPlacer = AxisItemPlacer.Vertical.default(
+                                        maxItemCount = 6
+                                    )
+                                ),
+
+                                bottomAxis = rememberBottomAxis(
+                                    title = "Count of values",
+                                    tickLength = 0.dp,
+                                    valueFormatter = { value, _ ->
+                                        value.toString()
+                                    },
+                                    guideline = null
+                                ),
+
+                                chartScrollState = scrollState,
+                                isZoomEnabled = true
+                            )
                         }
                     }
-                ) {
-                    DatePicker(state = datePickerState)
+
                 }
-            }
-            
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(0.95f)
-                    .align(Alignment.CenterHorizontally)
-                    .height(220.dp)
-            ) {
-                if (datasetForModel.isNotEmpty()) {
-                    ProvideChartStyle {
-                        Chart(
-                            chart = lineChart(
-                                lines = datasetLineSpec
-                            ),
-                            chartModelProducer = modelProducer,
-
-                            startAxis = rememberStartAxis(
-                                title = "Top values",
-                                tickLength = 0.dp,
-                                valueFormatter = { value, _ ->
-                                    round(value, 1).toString()
-                                },
-                                itemPlacer = AxisItemPlacer.Vertical.default(
-                                    maxItemCount = 6
-                                )
-                            ),
-
-                            bottomAxis = rememberBottomAxis(
-                                title = "Count of values",
-                                tickLength = 0.dp,
-                                valueFormatter = { value, _ ->
-                                    value.toString()
-                                },
-                                guideline = null
-                            ),
-
-                            chartScrollState = scrollState,
-                            isZoomEnabled = true
-                        )
-                    }
-                }
-
-            }
-            /*TextButton(
+                /*TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {refreshDataset.intValue++}
         ) {
             Text(text = "Refresh")
 
         }*/
+            }
         }
     }
 }
