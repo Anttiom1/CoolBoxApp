@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidcoolboxryhma2.viewmodel.GraphTestViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -58,7 +59,9 @@ import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollState
+import com.patrykandpatrick.vico.compose.component.marker.markerComponent
 import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
+import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.DefaultAlpha
 import com.patrykandpatrick.vico.core.axis.AxisItemPlacer
@@ -66,15 +69,18 @@ import com.patrykandpatrick.vico.core.chart.Chart
 import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShader
 import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
+import com.patrykandpatrick.vico.core.component.text.TextComponent
+import com.patrykandpatrick.vico.core.entry.ChartEntry
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
+import com.patrykandpatrick.vico.core.extension.getFieldValue
 import com.patrykandpatrick.vico.core.extension.round
+import com.patrykandpatrick.vico.core.marker.Marker
 import kotlinx.coroutines.launch
 import java.nio.file.WatchEvent
 import java.util.Date
 import kotlin.math.pow
 import kotlin.math.round
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,8 +91,9 @@ fun GraphTest(goToHome: () -> Unit) {
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
     val scrollState = rememberChartScrollState()
-    val datePickerState = rememberDatePickerState()
     val openDialog = remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(vm.initialTime)
+
 
     fun decreaseDay(){
         datePickerState.setSelection(datePickerState.selectedDateMillis?.minus(
@@ -188,8 +195,6 @@ fun GraphTest(goToHome: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (openDialog.value) {
-                    datePickerState.selectedDateMillis?.let { Date(it).toString() }
-                        ?.let { Log.d("antti", it) }
                     val confirmEnabled = remember {
                         derivedStateOf { datePickerState.selectedDateMillis != null }
                     }
@@ -222,15 +227,14 @@ fun GraphTest(goToHome: () -> Unit) {
                         DatePicker(state = datePickerState)
                     }
                 }
-
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth(0.95f)
                         .align(Alignment.CenterHorizontally)
                         .height(220.dp)
                 ) {
                     if (datasetForModel.isNotEmpty()) {
                         ProvideChartStyle {
+                            Text(text = "Ulkolämpötila", fontSize = 24.sp, modifier = Modifier.padding(8.dp))
                             Chart(
                                 chart = lineChart(
                                     lines = datasetLineSpec
