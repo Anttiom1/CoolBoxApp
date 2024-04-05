@@ -64,6 +64,7 @@ import com.patrykandpatrick.vico.core.DefaultAlpha
 import com.patrykandpatrick.vico.core.axis.AxisItemPlacer
 import com.patrykandpatrick.vico.core.chart.Chart
 import com.patrykandpatrick.vico.core.chart.line.LineChart
+import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.component.Component
 import com.patrykandpatrick.vico.core.component.shape.LineComponent
 import com.patrykandpatrick.vico.core.component.shape.ShapeComponent
@@ -234,15 +235,17 @@ fun GraphTest(goToHome: () -> Unit) {
                 Card(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .height(220.dp)
+                        .height(440.dp)
                 ) {
                     if (datasetForModel.isNotEmpty()) {
                         ProvideChartStyle {
                             val marker = rememberMarker()
                             Text(text = "Ulkolämpötila", fontSize = 24.sp, modifier = Modifier.padding(8.dp))
                             Chart(
+                                modifier = Modifier.fillMaxSize(),
                                 marker = marker,
                                 chart = lineChart(
+                                    axisValuesOverrider = AxisValuesOverrider.fixed(minY = -25f, maxY = 25f),
                                     lines = datasetLineSpec
                                 ),
                                 chartModelProducer = modelProducer,
@@ -251,11 +254,9 @@ fun GraphTest(goToHome: () -> Unit) {
                                     title = "Top values",
                                     tickLength = 0.dp,
                                     valueFormatter = { value, _ ->
-                                        round(value, 1).toString()
+                                        value.round.toString()
                                     },
-                                    itemPlacer = AxisItemPlacer.Vertical.default(
-                                        maxItemCount = 6
-                                    )
+                                    itemPlacer = AxisItemPlacer.Vertical.default(13)
                                 ),
 
                                 bottomAxis = rememberBottomAxis(
@@ -277,9 +278,4 @@ fun GraphTest(goToHome: () -> Unit) {
             }
         }
     }
-}
-
-fun round(value: Float, decimalPlaces: Int): Float {
-    val factor = 10.0.pow(decimalPlaces)
-    return (kotlin.math.round(value * factor) / factor).toFloat()
 }

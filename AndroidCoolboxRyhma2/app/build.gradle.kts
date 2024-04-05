@@ -46,10 +46,11 @@ defaultConfig {
 dependencies {
 
 
-    implementation("com.patrykandpatrick.vico:compose:1.11.1")
-    implementation("com.patrykandpatrick.vico:compose-m2:1.11.1")
-    implementation("com.patrykandpatrick.vico:compose-m3:1.11.1")
-    implementation("com.patrykandpatrick.vico:core:1.11.1")
+    implementation("com.patrykandpatrick.vico:compose:1.14.0")
+    implementation("com.patrykandpatrick.vico:compose-m2:1.14.0")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.14.0")
+    implementation("com.patrykandpatrick.vico:core:1.14.0")
+    implementation("com.patrykandpatrick.vico:views:1.14.0")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
