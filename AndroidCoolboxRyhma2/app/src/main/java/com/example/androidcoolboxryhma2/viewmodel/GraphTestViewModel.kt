@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidcoolboxryhma2.api.temperatureService
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -21,19 +22,19 @@ class GraphTestViewModel: ViewModel() {
     private var month: Int = 0
     private var day: Int = 0
     private var dateString: String = ""
+    var initialTime: Long = 0
     fun getDateString(): String{
         return dateString
     }
-    fun setDateString(date: String){
+    private fun setDateString(date: String){
         dateString = date
     }
 
-
-    // alustetaan listaan kaksi arvoa jotta line chart voidaan näyttää viiva arvojen välille
-    /*init {
-        getLatestTemperatureIndoors()
-        getLatestTemperatureIndoors()
-    }*/
+    init {
+        initialTime = Instant.now().toEpochMilli()
+        calculateDate(initialTime)
+        getDailyAverageTemperature()
+    }
 
     fun getDailyAverageTemperature(){
         viewModelScope.launch {
