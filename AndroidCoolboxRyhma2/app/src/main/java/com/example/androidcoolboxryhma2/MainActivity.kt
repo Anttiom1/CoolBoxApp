@@ -1,8 +1,8 @@
 package com.example.androidcoolboxryhma2
 
-import androidx.activity.compose.setContent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,13 +20,21 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
 
-            NavHost(navController = navController, startDestination = "graphTest") {
+            NavHost(navController = navController, startDestination = "loginScreen") {
 
                 composable("loginScreen") {
-                    LoginScreen(onLoginClick = {})
+                    LoginScreen(
+                        onLoginClick = {
+                        navController.navigate("homeScreen")
+                    })
                 }
                 composable("homeScreen"){
-                    HomeScreen()
+                    HomeScreen(
+                        goToGraph = {
+                        navController.navigate("graphTest")
+                    }, logOut = {
+                        navController.navigate("loginScreen")
+                    })
                 }
                 composable("graphTest"){
                     GraphTest(
