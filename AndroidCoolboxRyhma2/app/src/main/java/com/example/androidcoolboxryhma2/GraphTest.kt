@@ -3,6 +3,7 @@ package com.example.androidcoolboxryhma2
 
 import android.graphics.Color
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +23,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
@@ -47,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,15 +60,19 @@ import com.example.androidcoolboxryhma2.viewmodel.GraphTestViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollState
+import com.patrykandpatrick.vico.compose.component.lineComponent
 import com.patrykandpatrick.vico.compose.component.marker.markerComponent
 import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.DefaultAlpha
 import com.patrykandpatrick.vico.core.axis.AxisItemPlacer
+import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.chart.Chart
+import com.patrykandpatrick.vico.core.chart.column.ColumnChart
 import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.component.Component
@@ -91,12 +101,17 @@ fun GraphTest(goToHome: () -> Unit) {
     val vm: GraphTestViewModel = viewModel()
 
     val modelProducer = remember { ChartEntryModelProducer() }
+    val columnModelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
+    val datasetLineSpec2 = remember { arrayListOf<LineChart.LineSpec>() }
+    val columnLineSpec = remember { arrayListOf<LineComponent>() }
     val scrollState = rememberChartScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
-
+    var expanded by remember { mutableStateOf(false)}
+    val menuOptions = arrayOf("Ulkölämpötila", "Sähkönkulutus")
+    var selectedOption by remember { mutableStateOf(menuOptions[0])}
 
     fun decreaseDay(){
         val newTime = datePickerState.selectedDateMillis?.minus(
@@ -115,9 +130,18 @@ fun GraphTest(goToHome: () -> Unit) {
         vm.calculateDate(datePickerState.selectedDateMillis)
         vm.getDailyAverageTemperature()
     }
-
+    val data = arrayListOf<FloatEntry>()
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
+
+        columnLineSpec.clear()
+        columnLineSpec.add(
+            LineComponent(color = Red.toArgb(), thicknessDp = 4f)
+        )
+        data.add(FloatEntry(x = 10f, y = 10f))
+        columnModelProducer.setEntries(data)
+
+
         datasetForModel.clear()
         datasetLineSpec.clear()
         val dataPoints = arrayListOf<FloatEntry>()
@@ -138,7 +162,6 @@ fun GraphTest(goToHome: () -> Unit) {
         for (item in vm.temperatureState.value.list) {
             val floatValue = item.value.toFloat()
             val xValue = item.hour.toFloat()
-            Log.d("mursu", xValue.toString())
             dataPoints.add(FloatEntry(x = xValue, y = floatValue))
         }
 
@@ -238,15 +261,36 @@ fun GraphTest(goToHome: () -> Unit) {
                         .height(440.dp)
                 ) {
                     if (datasetForModel.isNotEmpty()) {
-                        ProvideChartStyle {
+                        val context = LocalContext.current
+                        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {expanded = !expanded }) {
+                            TextField(
+                                value = selectedOption,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded)},
+                                modifier = Modifier.menuAnchor()
+                            )
+                            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }
+                            ) {
+                                menuOptions.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = item) },
+                                        onClick = {
+                                            selectedOption = item
+                                            expanded = false
+                                            Toast.makeText(context, item, Toast.LENGTH_LONG).show()
+                                        })
+                                    }
+                                }
+                            }
                             val marker = rememberMarker()
-                            Text(text = "Ulkolämpötila", fontSize = 24.sp, modifier = Modifier.padding(8.dp))
                             Chart(
                                 modifier = Modifier.fillMaxSize(),
                                 marker = marker,
                                 chart = lineChart(
                                     axisValuesOverrider = AxisValuesOverrider.fixed(minY = -25f, maxY = 25f),
-                                    lines = datasetLineSpec
+                                    lines = datasetLineSpec2
                                 ),
                                 chartModelProducer = modelProducer,
 
@@ -273,9 +317,28 @@ fun GraphTest(goToHome: () -> Unit) {
                             )
                         }
                     }
-
+                Card {
+                    Text(text = "asdasd")
+                    Chart(
+                        startAxis = rememberStartAxis(
+                            valueFormatter = {value, _ ->
+                                value.toString()
+                            }
+                        ),
+                        bottomAxis = rememberBottomAxis(
+                            valueFormatter = {value, _ ->
+                                value.toString()
+                            }
+                        ),
+                        chartModelProducer = columnModelProducer,
+                        modifier = Modifier.fillMaxSize(),
+                        chart = columnChart(
+                            columns = columnLineSpec,
+                        )
+                    )
+                }
                 }
             }
         }
     }
-}
+
