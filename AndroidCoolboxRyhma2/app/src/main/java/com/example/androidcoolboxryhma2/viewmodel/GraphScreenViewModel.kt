@@ -1,6 +1,5 @@
 package com.example.androidcoolboxryhma2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.androidcoolboxryhma2.model.TemperaturesState
@@ -14,7 +13,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class GraphTestViewModel: ViewModel() {
+class GraphScreenViewModel: ViewModel() {
     private val _temperaturesState = mutableStateOf(TemperaturesState())
     val temperatureState: State<TemperaturesState> = _temperaturesState
 
@@ -42,13 +41,9 @@ class GraphTestViewModel: ViewModel() {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
                 val res = temperatureService.getDailyAverageTemperature(month, day)
                 _temperaturesState.value = _temperaturesState.value.copy(list = res.data)
-                //Log.d("antti", res.toString())
-                Log.d("antti", _temperaturesState.value.list.toString())
-
             }
             catch (e: Exception){
                 _temperaturesState.value = _temperaturesState.value.copy(error = e.toString())
-                Log.d("antti", e.toString())
             }
             finally {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = false)
