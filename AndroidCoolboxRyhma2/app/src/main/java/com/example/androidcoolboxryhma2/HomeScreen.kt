@@ -1,6 +1,12 @@
 package com.example.androidcoolboxryhma2
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,33 +46,74 @@ fun HomeScreen(goToGraph: () -> Unit, logOut: () -> Unit){
                 title = { "Home" }
             )}
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
+        Column(modifier = Modifier
+            .fillMaxSize()
             .padding(it)
             .height(100.dp)
         ) {
             Text(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(50.dp),
                 text = "CoolBox",
                 fontSize = 32.sp)
 
-            Button(
-                onClick = { goToGraph() },
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(top = 16.dp)
-            ) {
-                Text(text = "Graph")
+            Row (modifier = Modifier
+                .height(100.dp)
+            ){
+                Column (modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                ){
+                    Text(modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        , text = "Lämpötila")
+                    Row (modifier = Modifier
+                        .align(Alignment.CenterHorizontally)) {
+                        Text("In")
+                        Text("Out")
+                    }
+                }
+
+                Column (modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                ){
+                    Column (modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    ){
+                        Text(modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            , text = "Sähkönkulutus")
+                        Row (modifier = Modifier
+                            .align(Alignment.CenterHorizontally)) {
+                            Text("Weekly")
+                            Text("Daily")
+                        }
+                    }
+                }
             }
 
-            Button(
-                onClick = { logOut() },
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(top = 16.dp)
-            ) {
-                Text(text = "Log Out")
+            Row {
+                Button(
+                    onClick = { goToGraph() },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                ) {
+                    Text(text = "Graph")
+                }
+
+                Button(
+                    onClick = { logOut() },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                ) {
+                    Text(text = "Log Out")
+                }
             }
+
         }
+
     }
 }
