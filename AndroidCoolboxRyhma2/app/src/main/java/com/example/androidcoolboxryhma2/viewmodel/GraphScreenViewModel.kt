@@ -1,11 +1,14 @@
 package com.example.androidcoolboxryhma2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.androidcoolboxryhma2.model.TemperaturesState
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import com.example.androidcoolboxryhma2.api.energyService
 import com.example.androidcoolboxryhma2.api.temperatureService
+import com.example.androidcoolboxryhma2.model.EnergyState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -16,6 +19,8 @@ import java.util.Locale
 class GraphScreenViewModel: ViewModel() {
     private val _temperaturesState = mutableStateOf(TemperaturesState())
     val temperatureState: State<TemperaturesState> = _temperaturesState
+    private val _energyState = mutableStateOf(EnergyState())
+    val energyState: State<EnergyState> = _energyState
 
     private var year: Int = 0
     private var month: Int = 0
@@ -33,6 +38,22 @@ class GraphScreenViewModel: ViewModel() {
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
         getDailyAverageTemperature()
+    }
+
+    fun getDailyEnergyConsumption(){
+        viewModelScope.launch {
+            try {
+                _energyState.value = _energyState.value.copy(loading = true)
+                val res = energyService.getDailyEnergyConsumption(month = month, day = day)
+                _energyState.value = _energyState.value.copy(list = res.data)
+            }
+            catch (e: Exception){
+                _energyState.value = _energyState.value.copy(error = e.toString())
+            }
+            finally {
+                _energyState.value = _energyState.value.copy(loading = false)
+            }
+        }
     }
 
     fun getDailyAverageTemperature(){

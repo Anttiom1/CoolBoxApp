@@ -1,6 +1,7 @@
 package com.example.androidcoolboxryhma2
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -64,6 +64,7 @@ import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.extension.round
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +72,7 @@ fun GraphTest(goToHome: () -> Unit) {
     val vm: GraphScreenViewModel = viewModel()
 
     val modelProducer = remember { ChartEntryModelProducer() }
+    val columnModelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
     val columnLineSpec = remember { arrayListOf<LineComponent>() }
@@ -78,7 +80,7 @@ fun GraphTest(goToHome: () -> Unit) {
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
     var expanded by remember { mutableStateOf(false)}
-    val menuOptions = arrayOf("Ulkölämpötila", "Sähkönkulutus")
+    val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus")
     var selectedOption by remember { mutableStateOf(menuOptions[0])}
 
     fun decreaseDay(){
@@ -87,7 +89,12 @@ fun GraphTest(goToHome: () -> Unit) {
         )
         datePickerState.selectedDateMillis = newTime
         vm.calculateDate(datePickerState.selectedDateMillis)
-        vm.getDailyAverageTemperature()
+        if (selectedOption == "Ulkolämpötila"){
+            vm.getDailyAverageTemperature()
+        }
+        if (selectedOption == "Sähkönkulutus"){
+            vm.getDailyEnergyConsumption()
+        }
     }
 
     fun incrementDay(){
@@ -96,7 +103,12 @@ fun GraphTest(goToHome: () -> Unit) {
         )
         datePickerState.selectedDateMillis = newTime
         vm.calculateDate(datePickerState.selectedDateMillis)
-        vm.getDailyAverageTemperature()
+        if (selectedOption == "Ulkolämpötila"){
+            vm.getDailyAverageTemperature()
+        }
+        if (selectedOption == "Sähkönkulutus"){
+            vm.getDailyEnergyConsumption()
+        }
     }
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
@@ -131,6 +143,29 @@ fun GraphTest(goToHome: () -> Unit) {
         if (dataPoints.isNotEmpty()) {
             datasetForModel.add(dataPoints)
             modelProducer.setEntries(datasetForModel)
+        }
+    }
+
+    LaunchedEffect(key1 = vm.energyState.value.list) {
+
+        val dataPoints = arrayListOf<FloatEntry>()
+        datasetForModel.clear()
+        columnLineSpec.clear()
+        columnLineSpec.add(
+            LineComponent(color = Red.toArgb(), thicknessDp = 4f)
+        )
+
+        // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
+        for (item in vm.energyState.value.list) {
+            val floatValue = item.totalConsumedAmount.toFloat()
+            Log.d("antti", floatValue.toString())
+            val xValue = item.hour.toFloat()
+            dataPoints.add(FloatEntry(x = xValue, y = floatValue))
+        }
+
+        if (dataPoints.isNotEmpty()) {
+            datasetForModel.add(dataPoints)
+            columnModelProducer.setEntries(datasetForModel)
         }
     }
 
@@ -196,7 +231,13 @@ fun GraphTest(goToHome: () -> Unit) {
                                 onClick = {
                                     openDialog.value = false
                                     vm.calculateDate(datePickerState.selectedDateMillis)
-                                    vm.getDailyAverageTemperature()
+                                    if (selectedOption == "Ulkolämpötila"){
+                                        vm.getDailyAverageTemperature()
+                                    }
+                                    if (selectedOption == "Sähkönkulutus"){
+                                        vm.getDailyEnergyConsumption()
+                                    }
+
                                 },
                                 enabled = confirmEnabled.value
                             ) {
@@ -218,8 +259,7 @@ fun GraphTest(goToHome: () -> Unit) {
                 }
                 Card(
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .height(440.dp)
+                        .fillMaxSize()
                 ) {
                         val context = LocalContext.current
                         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {expanded = !expanded }) {
@@ -244,58 +284,60 @@ fun GraphTest(goToHome: () -> Unit) {
                                     }
                                 }
                             }
-                            val marker = rememberMarker()
-                            Chart(
-                                modifier = Modifier.fillMaxSize(),
-                                marker = marker,
-                                chart = lineChart(
-                                    axisValuesOverrider = AxisValuesOverrider.fixed(minY = -25f, maxY = 25f),
-                                    lines = datasetLineSpec
-                                ),
-                                chartModelProducer = modelProducer,
+                            if (selectedOption == "Sähkönkulutus"){
+                                Chart(
+                                    startAxis = rememberStartAxis(
+                                        itemPlacer = AxisItemPlacer.Vertical.default(13),
+                                        valueFormatter = {value, _ ->
+                                            String.format("%.2f" , value)
+                                        }
+                                    ),
+                                    bottomAxis = rememberBottomAxis(
+                                        valueFormatter = {value, _ ->
+                                            value.toString()
+                                        }
+                                    ),
+                                    chartModelProducer = columnModelProducer,
+                                    modifier = Modifier.fillMaxSize(),
+                                    chart = columnChart(
+                                        axisValuesOverrider = AxisValuesOverrider.fixed(minY = 0f, maxY = 1f),
+                                        columns = columnLineSpec,
+                                    )
+                                )
+                            }
+                            if (selectedOption == "Ulkolämpötila"){
+                                val marker = rememberMarker()
+                                Chart(
+                                    modifier = Modifier.fillMaxSize(),
+                                    marker = marker,
+                                    chart = lineChart(
+                                        axisValuesOverrider = AxisValuesOverrider.fixed(minY = -25f, maxY = 25f),
+                                        lines = datasetLineSpec
+                                    ),
+                                    chartModelProducer = modelProducer,
 
-                                startAxis = rememberStartAxis(
-                                    title = "Top values",
-                                    tickLength = 0.dp,
-                                    valueFormatter = { value, _ ->
-                                        value.round.toString()
-                                    },
-                                    itemPlacer = AxisItemPlacer.Vertical.default(13)
-                                ),
+                                    startAxis = rememberStartAxis(
+                                        title = "Top values",
+                                        tickLength = 0.dp,
+                                        valueFormatter = { value, _ ->
+                                            value.round.toString()
+                                        },
+                                        itemPlacer = AxisItemPlacer.Vertical.default(13)
+                                    ),
 
-                                bottomAxis = rememberBottomAxis(
-                                    title = "Count of values",
-                                    tickLength = 0.dp,
-                                    valueFormatter = { value, _ ->
-                                        value.toString()
-                                    },
-                                    guideline = null
-                                ),
-                                chartScrollState = scrollState,
-                                isZoomEnabled = true
-                            )
-
+                                    bottomAxis = rememberBottomAxis(
+                                        title = "Count of values",
+                                        tickLength = 0.dp,
+                                        valueFormatter = { value, _ ->
+                                            value.toString()
+                                        },
+                                        guideline = null
+                                    ),
+                                    chartScrollState = scrollState,
+                                    isZoomEnabled = true
+                                )
+                            }
                     }
-                Card {
-                    Text(text = "asdasd")
-                    Chart(
-                        startAxis = rememberStartAxis(
-                            valueFormatter = {value, _ ->
-                                value.toString()
-                            }
-                        ),
-                        bottomAxis = rememberBottomAxis(
-                            valueFormatter = {value, _ ->
-                                value.toString()
-                            }
-                        ),
-                        chartModelProducer = modelProducer,
-                        modifier = Modifier.fillMaxSize(),
-                        chart = columnChart(
-                            columns = columnLineSpec,
-                        )
-                    )
-                }
                 }
             }
         }
