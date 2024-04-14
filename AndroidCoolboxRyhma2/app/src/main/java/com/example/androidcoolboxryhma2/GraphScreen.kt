@@ -79,7 +79,8 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GraphTest(goToHome: () -> Unit) {
+fun GraphScreen(goToHome: () -> Unit,
+              onMenuClick: () -> Unit) {
     val vm: GraphScreenViewModel = viewModel()
 
     val modelProducer = remember { ChartEntryModelProducer() }
@@ -182,7 +183,7 @@ fun GraphTest(goToHome: () -> Unit) {
             topBar = {
                 TopAppBar (
                     navigationIcon = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = { onMenuClick() }) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
                         }
                     },
