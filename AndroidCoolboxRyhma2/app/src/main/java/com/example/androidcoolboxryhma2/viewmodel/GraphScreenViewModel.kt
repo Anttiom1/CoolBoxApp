@@ -1,14 +1,13 @@
 package com.example.androidcoolboxryhma2.viewmodel
 
-import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.androidcoolboxryhma2.model.TemperaturesState
-import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.example.androidcoolboxryhma2.api.energyService
 import com.example.androidcoolboxryhma2.api.temperatureService
 import com.example.androidcoolboxryhma2.model.EnergyState
+import com.example.androidcoolboxryhma2.model.TemperaturesState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -21,6 +20,9 @@ class GraphScreenViewModel: ViewModel() {
     val temperatureState: State<TemperaturesState> = _temperaturesState
     private val _energyState = mutableStateOf(EnergyState())
     val energyState: State<EnergyState> = _energyState
+    private val _outdoorTemperatureState = mutableStateOf<TemperaturesState?>(null)
+    val outdoorTemperatureState: State<TemperaturesState?> = _outdoorTemperatureState
+
 
     private var year: Int = 0
     private var month: Int = 0
@@ -68,6 +70,21 @@ class GraphScreenViewModel: ViewModel() {
             }
             finally {
                 _temperaturesState.value = _temperaturesState.value.copy(loading = false)
+            }
+        }
+    }
+
+    fun getLatestOutdoorTemperature() {
+        viewModelScope.launch {
+            try {
+                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(loading = true)
+                val res = temperatureService.getLatestOutdoorTemperature(month, day)
+                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(list = res.data)
+            } catch (e: Exception) {
+                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(error = e.toString())
+            }
+            finally {
+                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(loading = false)
             }
         }
     }
