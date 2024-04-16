@@ -1,6 +1,7 @@
 package com.example.androidcoolboxryhma2
 
 
+import android.text.Layout
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,7 @@ import com.patrykandpatrick.vico.core.component.shape.DashedShape
 import com.patrykandpatrick.vico.core.component.shape.LineComponent
 import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShader
 import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
+import com.patrykandpatrick.vico.core.component.text.TextComponent
 import com.patrykandpatrick.vico.core.dimensions.MutableDimensions
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
@@ -304,12 +306,12 @@ fun GraphScreen(goToHome: () -> Unit,
                                     startAxis = rememberStartAxis(
                                         itemPlacer = AxisItemPlacer.Vertical.default(13),
                                         valueFormatter = {value, _ ->
-                                            String.format("%.2f" , value)
+                                            String.format("%.2f" , value) + "kWh"
                                         }
                                     ),
                                     bottomAxis = rememberBottomAxis(
                                         valueFormatter = {value, _ ->
-                                            value.toString()
+                                            value.toInt().toString()
                                         }
                                     ),
                                     chartModelProducer = columnModelProducer,
@@ -323,6 +325,8 @@ fun GraphScreen(goToHome: () -> Unit,
                             }
                             if (selectedOption == "Ulkolämpötila"){
                                 val marker = rememberMarker()
+                                val label = TextComponent.Builder()
+
                                 Chart(
                                     modifier = Modifier.fillMaxSize(),
                                     marker = marker,
@@ -333,19 +337,16 @@ fun GraphScreen(goToHome: () -> Unit,
                                     chartModelProducer = modelProducer,
 
                                     startAxis = rememberStartAxis(
-                                        title = "Top values",
-                                        tickLength = 0.dp,
                                         valueFormatter = { value, _ ->
-                                            value.round.toString()
+                                            value.round.toString() + "°C"
                                         },
                                         itemPlacer = AxisItemPlacer.Vertical.default(13)
                                     ),
 
                                     bottomAxis = rememberBottomAxis(
-                                        title = "Count of values",
-                                        tickLength = 0.dp,
+                                        label = label.build(),
                                         valueFormatter = { value, _ ->
-                                            value.toString()
+                                            value.toInt().toString()
                                         },
                                         guideline = null
                                     ),
