@@ -1,5 +1,6 @@
 package com.example.androidcoolboxryhma2
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,16 +12,32 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidcoolboxryhma2.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit){
+fun LoginScreen(goToCategoriesScreen: () -> Unit){
     val vm: LoginViewModel = viewModel()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = vm.loginState.value.error) {
+        vm.loginState.value.error?.let {
+            Toast.makeText(context, vm.loginState.value.error, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    LaunchedEffect(key1 = vm.loginState.value.loginDone) {
+        if(vm.loginState.value.loginDone) {
+            vm.setLogin(false)
+            goToCategoriesScreen()
+        }
+    }
 
 Box(modifier = Modifier.fillMaxSize()) {
     when {
@@ -52,8 +69,6 @@ Box(modifier = Modifier.fillMaxSize()) {
                         vm.loginState.value.password != "",
                 onClick = {
                     vm.login()
-                    onLoginClick()
-                    /*************** goToNextScreen() ****************/
                 }) {
                     Text("Login")
                 }

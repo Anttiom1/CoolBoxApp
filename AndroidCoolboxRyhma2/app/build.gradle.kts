@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -45,7 +46,10 @@ defaultConfig {
 
 dependencies {
 
+    kapt("androidx.room:room-compiler:2.6.1")
 
+    implementation("androidx.room:room-common:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
     implementation("com.patrykandpatrick.vico:compose:1.14.0")
     implementation("com.patrykandpatrick.vico:compose-m2:1.14.0")
     implementation("com.patrykandpatrick.vico:compose-m3:1.14.0")

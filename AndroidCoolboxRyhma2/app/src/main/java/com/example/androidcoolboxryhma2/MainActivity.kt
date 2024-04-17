@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "loginScreen") {
                         composable("loginScreen") {
                             LoginScreen(
-                                onLoginClick = {
+                                goToCategoriesScreen = {
                                     navController.navigate("homeScreen")
                                 })
                         }
