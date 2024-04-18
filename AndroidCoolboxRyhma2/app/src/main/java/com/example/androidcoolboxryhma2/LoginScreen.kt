@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -63,12 +66,19 @@ Box(modifier = Modifier.fillMaxSize()) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
+                singleLine = true,
+                placeholder = { Text(text = "Käyttäjä")},
                 value = vm.loginState.value.username,
                 onValueChange = { newUsername -> vm.setUsername(newUsername)},
-                label = {Text("Username")}
+                label = {Text("Username")},
+                modifier = Modifier.fillMaxWidth(0.75f)
                 )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(0.75f),
+                singleLine = true,
+                placeholder = { Text(text = "Salasana")},
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                 value = vm.loginState.value.password,
