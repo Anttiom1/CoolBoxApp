@@ -159,14 +159,20 @@ fun GraphScreen(goToHome: () -> Unit,
 
         val dataPoints = arrayListOf<FloatEntry>()
         datasetForModel.clear()
-        columnLineSpec.clear()
-        columnLineSpec.add(
-            LineComponent(
-                color = Red.toArgb(),
-                thicknessDp = 16f,
+        datasetLineSpec.clear()
+        datasetLineSpec.add(
+            LineChart.LineSpec(
+                lineColor = Red.toArgb(),
+                lineBackgroundShader = DynamicShaders.fromBrush(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_START),
+                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_END)
+                        )
+                    )
                 )
+            )
         )
-
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in vm.energyState.value.list) {
             val floatValue = item.totalConsumedAmount
@@ -316,9 +322,9 @@ fun GraphScreen(goToHome: () -> Unit,
                                     ),
                                     chartModelProducer = columnModelProducer,
                                     modifier = Modifier.fillMaxSize(),
-                                    chart = columnChart(
+                                    chart = lineChart(
                                         axisValuesOverrider = AxisValuesOverrider.fixed(minY = 0f, maxY = 1f),
-                                        columns = columnLineSpec,
+                                        lines = datasetLineSpec,
 
                                     )
                                 )
