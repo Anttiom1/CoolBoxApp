@@ -95,7 +95,7 @@ import kotlin.random.Random
 @Composable
 fun GraphScreen(goToHome: () -> Unit,
                 onMenuClick: () -> Unit,
-                juuhOnClick: (index: Int) -> Unit = {}) {
+                selectOption: (index: Int) -> Unit = {}) {
     val vm: GraphScreenViewModel = viewModel()
 
     val modelProducer = remember { ChartEntryModelProducer() }
@@ -318,7 +318,7 @@ fun GraphScreen(goToHome: () -> Unit,
                                     .weight(1F).fillMaxWidth(),
                                 onClick = {
                                     onIndexSelected(index)
-                                    juuhOnClick(index)
+                                    selectOption(index)
                                     selectedOption = item
                                     if (selectedOption == "Sähkönkulutus") {
                                         vm.getDailyEnergyConsumption()
