@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -211,73 +212,74 @@ fun GraphScreen(goToHome: () -> Unit,
                     .padding(8.dp)
                     .fillMaxSize()
             ) {
-                OutlinedTextField(value = vm.getDateString(),
-                    onValueChange = { },
-                    readOnly = true,
-                    leadingIcon = {
-                        IconButton(onClick = { openDialog.value = true }) {
-                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
-                        }
-                    },
-                    trailingIcon = {
-                        Row {
-                            IconButton(onClick = { decreaseDay() }) {
-                                Icon(
-                                    Icons.Default.KeyboardArrowLeft,
-                                    contentDescription = "Previous"
-                                )
-                            }
-                            IconButton(onClick = { incrementDay() }) {
-                                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
-                            }
-                        }
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (openDialog.value) {
-                    val confirmEnabled = remember {
-                        derivedStateOf { datePickerState.selectedDateMillis != null }
-                    }
-                    DatePickerDialog(
-                        onDismissRequest = {
-                            openDialog.value = false
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    openDialog.value = false
-                                    vm.calculateDate(datePickerState.selectedDateMillis)
-                                    if (selectedOption == "Ulkolämpötila"){
-                                        vm.getDailyAverageTemperature()
-                                    }
-                                    if (selectedOption == "Sähkönkulutus"){
-                                        vm.getDailyEnergyConsumption()
-                                    }
-
-                                },
-                                enabled = confirmEnabled.value
-                            ) {
-                                Text("OK")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    openDialog.value = false
-                                }
-                            ) {
-                                Text("Cancel")
-                            }
-                        }
-                    ) {
-                        DatePicker(state = datePickerState)
-                    }
-                }
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
+                    OutlinedTextField(value = vm.getDateString(),
+                        modifier = Modifier.padding(8.dp)
+                            .fillMaxWidth(),
+                        onValueChange = { },
+                        readOnly = true,
+                        leadingIcon = {
+                            IconButton(onClick = { openDialog.value = true }) {
+                                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date")
+                            }
+                        },
+                        trailingIcon = {
+                            Row {
+                                IconButton(onClick = { decreaseDay() }) {
+                                    Icon(
+                                        Icons.Default.KeyboardArrowLeft,
+                                        contentDescription = "Previous"
+                                    )
+                                }
+                                IconButton(onClick = { incrementDay() }) {
+                                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next")
+                                }
+                            }
+                        }
+                    )
+                    if (openDialog.value) {
+                        val confirmEnabled = remember {
+                            derivedStateOf { datePickerState.selectedDateMillis != null }
+                        }
+                        DatePickerDialog(
+                            onDismissRequest = {
+                                openDialog.value = false
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        openDialog.value = false
+                                        vm.calculateDate(datePickerState.selectedDateMillis)
+                                        if (selectedOption == "Ulkolämpötila"){
+                                            vm.getDailyAverageTemperature()
+                                        }
+                                        if (selectedOption == "Sähkönkulutus"){
+                                            vm.getDailyEnergyConsumption()
+                                        }
+
+                                    },
+                                    enabled = confirmEnabled.value
+                                ) {
+                                    Text("OK")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        openDialog.value = false
+                                    }
+                                ) {
+                                    Text("Cancel")
+                                }
+                            }
+                        ) {
+                            DatePicker(state = datePickerState)
+                        }
+                    }
+
                         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {expanded = !expanded }) {
                             TextField(
                                 value = selectedOption,
@@ -286,6 +288,8 @@ fun GraphScreen(goToHome: () -> Unit,
                                 trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
                                     expanded = expanded)},
                                 modifier = Modifier.menuAnchor()
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
                             )
                             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }
                             ) {
