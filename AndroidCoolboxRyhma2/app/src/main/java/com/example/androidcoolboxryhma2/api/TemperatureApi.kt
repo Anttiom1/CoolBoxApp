@@ -16,5 +16,5 @@ interface TemperatureApi{
     suspend fun getDailyAverageTemperature(@Path("month") month: Int, @Path("day") day: Int): TemperatureData
 
     @GET("temperature/latest")
-    suspend fun getLatestOutdoorTemperature(@Path("month") month: Int, @Path("day") day: Int): TemperatureData
+    suspend fun getLatestIndoorTemperature(@Path("month") month: Int, @Path("day") day: Int): TemperatureData
 }

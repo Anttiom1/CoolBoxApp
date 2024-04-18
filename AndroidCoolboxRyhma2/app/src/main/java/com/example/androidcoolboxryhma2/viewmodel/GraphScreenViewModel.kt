@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidcoolboxryhma2.api.energyService
 import com.example.androidcoolboxryhma2.api.temperatureService
+import com.example.androidcoolboxryhma2.model.EnergyItem
 import com.example.androidcoolboxryhma2.model.EnergyState
+import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -20,8 +22,10 @@ class GraphScreenViewModel: ViewModel() {
     val temperatureState: State<TemperaturesState> = _temperaturesState
     private val _energyState = mutableStateOf(EnergyState())
     val energyState: State<EnergyState> = _energyState
-    private val _outdoorTemperatureState = mutableStateOf<TemperaturesState?>(null)
-    val outdoorTemperatureState: State<TemperaturesState?> = _outdoorTemperatureState
+    private val _indoorTemperatureState = mutableStateOf<TemperaturesState?>(null)
+    val indoorTemperatureState: State<TemperaturesState?> = _indoorTemperatureState
+    private val _energyStateWeekly = mutableStateOf<EnergyState?>(null)
+    val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
 
 
     private var year: Int = 0
@@ -40,6 +44,8 @@ class GraphScreenViewModel: ViewModel() {
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
         getDailyAverageTemperature()
+        getLatestIndoorTemperature()
+        getWeeklyEnergyConsumption()
     }
 
     fun getDailyEnergyConsumption(){
@@ -54,6 +60,28 @@ class GraphScreenViewModel: ViewModel() {
             }
             finally {
                 _energyState.value = _energyState.value.copy(loading = false)
+            }
+        }
+    }
+
+    private fun getWeeklyEnergyConsumption(){
+        viewModelScope.launch {
+            try {
+                _energyStateWeekly.value = _energyStateWeekly.value?.copy(loading = true)
+                val res = energyService.getWeeklyEnergyConsumption(month = month, day = day)
+                if (res.data.isNotEmpty()) {
+                    _energyStateWeekly.value = _energyStateWeekly.value?.copy(list = res.data)
+                } else {
+                    val totalConsumedAmount  = energyState.value.list.lastOrNull()?.totalConsumedAmount
+                    if (totalConsumedAmount != null) { _energyStateWeekly.value = _energyStateWeekly.value?.copy(list = listOf(EnergyItem(year = year, month = month, day = day, hour = 0, totalConsumedAmount = totalConsumedAmount * 7)))
+                    }
+                }
+            }
+            catch (e: Exception){
+                _energyStateWeekly.value = _energyStateWeekly.value?.copy(error = e.toString())
+            }
+            finally {
+                _energyStateWeekly.value = _energyStateWeekly.value?.copy(loading = false)
             }
         }
     }
@@ -74,17 +102,21 @@ class GraphScreenViewModel: ViewModel() {
         }
     }
 
-    fun getLatestOutdoorTemperature() {
+    private fun getLatestIndoorTemperature() {
         viewModelScope.launch {
             try {
-                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(loading = true)
-                val res = temperatureService.getLatestOutdoorTemperature(month, day)
-                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(list = res.data)
-            } catch (e: Exception) {
-                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(error = e.toString())
+                _indoorTemperatureState.value = _indoorTemperatureState.value?.copy(loading = true)
+                val res = temperatureService.getLatestIndoorTemperature(month, day)
+                if (res.data.isNotEmpty()) {
+                    _indoorTemperatureState.value = _indoorTemperatureState.value?.copy(list = res.data)
+                } else {
+                    _indoorTemperatureState.value = _indoorTemperatureState.value?.copy(list = listOf(TemperatureItem(deviceName = "sisäasema lämpöanturi", unitName = "Lämpötila", value = "18", unitValue = "°C", year = year, month = month, day = day, hour = 0, minute = 0, sec = 0)))
+                }
+                } catch (e: Exception) {
+                _indoorTemperatureState.value = _indoorTemperatureState.value?.copy(error = e.toString())
             }
             finally {
-                _outdoorTemperatureState.value = _outdoorTemperatureState.value?.copy(loading = false)
+                _indoorTemperatureState.value = _indoorTemperatureState.value?.copy(loading = false)
             }
         }
     }
