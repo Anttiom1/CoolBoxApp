@@ -85,6 +85,7 @@ fun ConfirmLogout(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onMenuClick: () -> Unit,
     goToGraph: () -> Unit,
     logOut: () -> Unit)
 {
@@ -102,7 +103,7 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }
+                    IconButton(onClick = { onMenuClick() }
                     ) {
                         Icon(imageVector = Icons.Default.Menu, contentDescription = stringResource(
                             id = R.string.Menu

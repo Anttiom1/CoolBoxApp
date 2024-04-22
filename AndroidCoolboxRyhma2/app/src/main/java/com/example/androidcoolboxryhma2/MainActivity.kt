@@ -94,6 +94,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("homeScreen") {
                             HomeScreen(
+                                onMenuClick = {scope.launch { drawerState.open() }},
                                 goToGraph = {
                                     navController.navigate("graphScreen")
                                 }, logOut = {
