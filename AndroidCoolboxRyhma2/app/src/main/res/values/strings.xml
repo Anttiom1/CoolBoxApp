@@ -2,4 +2,21 @@
     <string name="app_name">AndroidCoolboxRyhma2</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="Date">Date</string>
+    <string name="Previous">Previous</string>
+    <string name="Next">Next</string>
+    <string name="Ok">Ok</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Menu">Menu</string>
+    <string name="Home">Home</string>
+    <string name="Login">Login</string>
+    <string name="Logout">Logout</string>
+    <string name="Temperature">Temperature</string>
+    <string name="ElectricityConsumption">Electricity consumption</string>
+    <string name="Graph">Graph</string>
+    <string name="User">User</string>
+    <string name="Username">Username</string>
+    <string name="Password">Password</string>
+    <string name="HidePassword">Hide password</string>
+    <string name="ShowPassword">Show password</string>
 </resources>

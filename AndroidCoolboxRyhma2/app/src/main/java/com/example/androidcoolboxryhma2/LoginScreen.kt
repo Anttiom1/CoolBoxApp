@@ -67,23 +67,23 @@ Box(modifier = Modifier.fillMaxSize()) {
         ) {
             OutlinedTextField(
                 singleLine = true,
-                placeholder = { Text(text = "Käyttäjä")},
+                placeholder = { Text(text = stringResource(id = R.string.User))},
                 value = vm.loginState.value.username,
                 onValueChange = { newUsername -> vm.setUsername(newUsername)},
-                label = {Text("Username")},
+                label = {Text(stringResource(id = R.string.Username))},
                 modifier = Modifier.fillMaxWidth(0.75f)
                 )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(0.75f),
                 singleLine = true,
-                placeholder = { Text(text = "Salasana")},
+                placeholder = { Text(text = stringResource(id = R.string.Password))},
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                 value = vm.loginState.value.password,
                 onValueChange = { newPassword -> vm.setPassword(newPassword)},
-                label = {Text("Password")},
+                label = {Text(stringResource(id = R.string.Password))},
                 trailingIcon = {
                     //Button to change password visibility
                     IconButton(
@@ -94,8 +94,8 @@ Box(modifier = Modifier.fillMaxSize()) {
                         //Change icon and show password in clear text or as hidden
                         Icon(imageVector = if (isPasswordVisible) ImageVector.vectorResource(R.drawable.baseline_visibility_24)
                         else ImageVector.vectorResource(R.drawable.baseline_visibility_off_24)
-                            , contentDescription = if (isPasswordVisible) "Hide password"
-                            else "Show password"
+                            , contentDescription = if (isPasswordVisible) stringResource(id = R.string.HidePassword)
+                            else stringResource(id = R.string.ShowPassword)
                         )
                     }
                 }
@@ -107,7 +107,7 @@ Box(modifier = Modifier.fillMaxSize()) {
                 onClick = {
                     vm.login()
                 }) {
-                    Text("Login")
+                    Text(stringResource(id = R.string.Login))
                 }
             }
         }

@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -103,13 +104,17 @@ fun HomeScreen(
                 navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }
                     ) {
-                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = stringResource(
+                            id = R.string.Menu
+                        ))
 
                 }},
-                title = { "Home" },
+                title = { stringResource(id = R.string.Home) },
                 actions = {
                     IconButton(onClick = { vm.setConfirmLogout(true) }) {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Logout")
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = stringResource(
+                            id = R.string.Logout
+                        ))
                     }
                 }
             )
@@ -148,7 +153,7 @@ fun HomeScreen(
                     ) {
                         Text(
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally), text = "Lämpötila"
+                                .align(Alignment.CenterHorizontally), text = stringResource(id = R.string.Temperature)
                         )
                         Row(
                             modifier = Modifier
@@ -172,7 +177,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 modifier = Modifier
-                                    .align(Alignment.CenterHorizontally), text = "Sähkönkulutus"
+                                    .align(Alignment.CenterHorizontally), text = stringResource(id = R.string.ElectricityConsumption)
                             )
                             Row(
                                 modifier = Modifier
@@ -191,7 +196,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .padding(top = 16.dp)
                     ) {
-                        Text(text = "Graph")
+                        Text(text = stringResource(id = R.string.Graph))
                     }
 
                     Button(
@@ -199,7 +204,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .padding(top = 16.dp)
                     ) {
-                        Text(text = "Log Out")
+                        Text(text = stringResource(id = R.string.Logout))
                     }
                 }
 

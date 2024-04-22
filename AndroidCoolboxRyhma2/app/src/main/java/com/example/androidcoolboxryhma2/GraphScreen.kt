@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -234,7 +235,7 @@ fun GraphScreen(goToHome: () -> Unit,
                             IconButton(onClick = { openDialog.value = true }) {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Date"
+                                    contentDescription = stringResource(id = R.string.Date)
                                 )
                             }
                         },
@@ -243,13 +244,13 @@ fun GraphScreen(goToHome: () -> Unit,
                                 IconButton(onClick = { decreaseDay() }) {
                                     Icon(
                                         Icons.Default.KeyboardArrowLeft,
-                                        contentDescription = "Previous"
+                                        contentDescription = stringResource(id = R.string.Previous)
                                     )
                                 }
                                 IconButton(onClick = { incrementDay() }) {
                                     Icon(
                                         Icons.Default.KeyboardArrowRight,
-                                        contentDescription = "Next"
+                                        contentDescription = stringResource(id = R.string.Next)
                                     )
                                 }
                             }
@@ -278,7 +279,7 @@ fun GraphScreen(goToHome: () -> Unit,
                                     },
                                     enabled = confirmEnabled.value
                                 ) {
-                                    Text("OK")
+                                    Text(stringResource(id = R.string.Ok))
                                 }
                             },
                             dismissButton = {
@@ -287,7 +288,7 @@ fun GraphScreen(goToHome: () -> Unit,
                                         openDialog.value = false
                                     }
                                 ) {
-                                    Text("Cancel")
+                                    Text(stringResource(id = R.string.Cancel))
                                 }
                             }
                         ) {
@@ -296,10 +297,11 @@ fun GraphScreen(goToHome: () -> Unit,
                     }
                     val cornerRadius = 8.dp
 
-                    val (selectedIndex, onIndexSelected) = remember { mutableStateOf<Int?>(null) }
+                    val (selectedIndex, onIndexSelected) = remember { mutableStateOf<Int?>(0) }
                     Row(
                         modifier =
-                        Modifier.padding(8.dp)
+                        Modifier
+                            .padding(8.dp)
                             .fillMaxWidth()
                     ) {
                         menuOptions.forEachIndexed { index, item ->
@@ -315,7 +317,8 @@ fun GraphScreen(goToHome: () -> Unit,
                                             .offset((-1 * index).dp, 0.dp)
                                             .zIndex(if (selectedIndex == index) 1f else 0f)
                                 }
-                                    .weight(1F).fillMaxWidth(),
+                                    .weight(1F)
+                                    .fillMaxWidth(),
                                 onClick = {
                                     onIndexSelected(index)
                                     selectOption(index)
