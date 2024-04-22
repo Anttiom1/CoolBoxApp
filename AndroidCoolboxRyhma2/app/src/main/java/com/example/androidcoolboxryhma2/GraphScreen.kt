@@ -206,7 +206,9 @@ fun GraphScreen(goToHome: () -> Unit,
                 TopAppBar(
                     navigationIcon = {
                         IconButton(onClick = { onMenuClick() }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = stringResource(
+                                id = R.string.Menu
+                            ))
                         }
                     },
                     title = {
@@ -214,7 +216,9 @@ fun GraphScreen(goToHome: () -> Unit,
                     },
                     actions = {
                         IconButton(onClick = { goToHome() }) {
-                            Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
+                            Icon(imageVector = Icons.Default.Home, contentDescription = stringResource(
+                                id = R.string.Home
+                            ))
                         }
                     })
             }
