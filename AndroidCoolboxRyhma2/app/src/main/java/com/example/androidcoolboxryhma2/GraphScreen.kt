@@ -398,7 +398,8 @@ fun GraphScreen(goToHome: () -> Unit,
                             bottomAxis = rememberBottomAxis(
                                 valueFormatter = { value, _ ->
                                     value.toInt().toString()
-                                }
+                                },
+                                guideline = null
                             ),
                             chartModelProducer = columnModelProducer,
                             modifier = Modifier.fillMaxSize(),
