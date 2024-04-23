@@ -10,6 +10,11 @@ import com.example.androidcoolboxryhma2.model.EnergyItem
 import com.example.androidcoolboxryhma2.model.EnergyState
 import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
+import com.patrykandpatrick.vico.core.entry.composed.ComposedChartEntryModelProducer
+import com.patrykandpatrick.vico.core.util.RandomEntriesGenerator
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -27,6 +32,7 @@ class GraphScreenViewModel: ViewModel() {
     private val _energyStateWeekly = mutableStateOf<EnergyState?>(null)
     val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
 
+    internal val composedChartEntryModelProducer = ComposedChartEntryModelProducer.build()
 
     private var year: Int = 0
     private var month: Int = 0

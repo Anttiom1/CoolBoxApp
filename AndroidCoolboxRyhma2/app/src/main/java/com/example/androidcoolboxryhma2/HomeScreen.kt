@@ -190,28 +190,8 @@ fun HomeScreen(
                         }
                     }
                 }
-
-                Row {
-                    Button(
-                        onClick = { goToGraph() },
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.Graph))
-                    }
-
-                    Button(
-                        onClick = { logOut() },
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.Logout))
-                    }
-                }
-
             }
         }
-
     }
 }
 

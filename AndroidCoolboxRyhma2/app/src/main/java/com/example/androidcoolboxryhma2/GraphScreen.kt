@@ -5,6 +5,7 @@ import android.text.Layout
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -65,17 +66,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.size.Dimension
+import com.example.androidcoolboxryhma2.charts.ElectricityChart
+import com.example.androidcoolboxryhma2.charts.TemperatureChart
 import com.example.androidcoolboxryhma2.viewmodel.GraphScreenViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.rememberEndAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.compose.chart.scroll.ChartScrollState
 import com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollState
 import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 import com.patrykandpatrick.vico.core.DefaultAlpha
 import com.patrykandpatrick.vico.core.axis.AxisItemPlacer
+import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.chart.column.ColumnChart
+import com.patrykandpatrick.vico.core.chart.composed.plus
 import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.component.shape.DashedShape
@@ -86,6 +93,7 @@ import com.patrykandpatrick.vico.core.component.text.TextComponent
 import com.patrykandpatrick.vico.core.dimensions.MutableDimensions
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
+import com.patrykandpatrick.vico.core.entry.composed.ComposedChartEntryModelProducer
 import com.patrykandpatrick.vico.core.extension.mutableListOf
 import com.patrykandpatrick.vico.core.extension.round
 import com.patrykandpatrick.vico.core.marker.Marker
@@ -99,17 +107,23 @@ fun GraphScreen(goToHome: () -> Unit,
                 selectOption: (index: Int) -> Unit = {}) {
     val vm: GraphScreenViewModel = viewModel()
 
-    val modelProducer = remember { ChartEntryModelProducer() }
-    val columnModelProducer = remember { ChartEntryModelProducer() }
+    val temperatureModelProducer = remember { ChartEntryModelProducer() }
+    val electricityModelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
+    val datasetForModel2 = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
-    val columnLineSpec = remember { arrayListOf<LineComponent>() }
     val scrollState = rememberChartScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
-    var expanded by remember { mutableStateOf(false)}
-    val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus")
+    val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus", "testi")
     var selectedOption by remember { mutableStateOf(menuOptions[0])}
+
+    datasetLineSpec.add(
+        LineChart.LineSpec(
+            lineColor = Red.toArgb(),
+            lineBackgroundShader = null
+        )
+    )
 
     fun decreaseDay(){
         val newTime = datePickerState.selectedDateMillis?.minus(
@@ -137,25 +151,15 @@ fun GraphScreen(goToHome: () -> Unit,
         if (selectedOption == "Sähkönkulutus"){
             vm.getDailyEnergyConsumption()
         }
+        if (selectedOption == "testi"){
+            vm.getDailyEnergyConsumption()
+            vm.getDailyAverageTemperature()
+        }
     }
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
         datasetForModel.clear()
-        datasetLineSpec.clear()
         val dataPoints = arrayListOf<FloatEntry>()
-        datasetLineSpec.add(
-            LineChart.LineSpec(
-                lineColor = Red.toArgb(),
-                lineBackgroundShader = DynamicShaders.fromBrush(
-                    brush = Brush.verticalGradient(
-                        listOf(
-                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_START),
-                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_END)
-                        )
-                    )
-                )
-            )
-        )
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in vm.temperatureState.value.list) {
             val floatValue = item.value.toFloat()
@@ -165,28 +169,14 @@ fun GraphScreen(goToHome: () -> Unit,
 
         if (dataPoints.isNotEmpty()) {
             datasetForModel.add(dataPoints)
-            modelProducer.setEntries(datasetForModel)
+            temperatureModelProducer.setEntries(datasetForModel)
         }
     }
 
     LaunchedEffect(key1 = vm.energyState.value.list) {
 
         val dataPoints = arrayListOf<FloatEntry>()
-        datasetForModel.clear()
-        datasetLineSpec.clear()
-        datasetLineSpec.add(
-            LineChart.LineSpec(
-                lineColor = Red.toArgb(),
-                lineBackgroundShader = DynamicShaders.fromBrush(
-                    brush = Brush.verticalGradient(
-                        listOf(
-                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_START),
-                            Red.copy(DefaultAlpha.LINE_BACKGROUND_SHADER_END)
-                        )
-                    )
-                )
-            )
-        )
+        datasetForModel2.clear()
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in vm.energyState.value.list) {
             val floatValue = item.totalConsumedAmount
@@ -195,8 +185,8 @@ fun GraphScreen(goToHome: () -> Unit,
         }
 
         if (dataPoints.isNotEmpty()) {
-            datasetForModel.add(dataPoints)
-            columnModelProducer.setEntries(datasetForModel)
+            datasetForModel2.add(dataPoints)
+            electricityModelProducer.setEntries(datasetForModel2)
         }
     }
 
@@ -386,70 +376,35 @@ fun GraphScreen(goToHome: () -> Unit,
                         }
                     }
                     if (selectedOption == "Sähkönkulutus") {
-                        val marker = rememberMarker()
-                        Chart(
-                            marker = marker,
-                            startAxis = rememberStartAxis(
-                                itemPlacer = AxisItemPlacer.Vertical.default(13),
-                                valueFormatter = { value, _ ->
-                                    String.format("%.2f", value) + "kWh"
-                                }
-                            ),
-                            bottomAxis = rememberBottomAxis(
-                                valueFormatter = { value, _ ->
-                                    value.toInt().toString()
-                                },
-                                guideline = null
-                            ),
-                            chartModelProducer = columnModelProducer,
-                            modifier = Modifier.fillMaxSize(),
-                            chart = lineChart(
-                                axisValuesOverrider = AxisValuesOverrider.fixed(
-                                    minY = 0f,
-                                    maxY = 1f
-                                ),
-                                lines = datasetLineSpec,
-
-                                )
-                        )
+                        ElectricityChart(modelProducer = electricityModelProducer, scrollState = scrollState, datasetLineSpec = datasetLineSpec)
                     }
                     if (selectedOption == "Ulkolämpötila") {
-                        val marker = rememberMarker()
-                        val label = TextComponent.Builder()
-
+                        TemperatureChart(modelProducer = temperatureModelProducer, scrollState = scrollState, datasetLineSpec = datasetLineSpec)
+                    }
+                    if (selectedOption == "testi"){
+                        vm.composedChartEntryModelProducer.runTransaction {
+                            add(datasetForModel)
+                            add(datasetForModel2)
+                        }
+                        val chart1 = lineChart(targetVerticalAxisPosition = AxisPosition.Vertical.End, lines = datasetLineSpec)
+                        val chart2 = lineChart(targetVerticalAxisPosition = AxisPosition.Vertical.End, lines =  datasetLineSpec)
                         Chart(
-                            modifier = Modifier.fillMaxSize(),
-                            marker = marker,
-                            chart = lineChart(
-                                axisValuesOverrider = AxisValuesOverrider.fixed(
-                                    minY = -25f,
-                                    maxY = 25f
-                                ),
-                                lines = datasetLineSpec
-                            ),
-                            chartModelProducer = modelProducer,
-
-                            startAxis = rememberStartAxis(
-                                valueFormatter = { value, _ ->
-                                    value.round.toString() + "°C"
-                                },
-                                itemPlacer = AxisItemPlacer.Vertical.default(13)
-                            ),
-
-                            bottomAxis = rememberBottomAxis(
-                                label = label.build(),
-                                valueFormatter = { value, _ ->
-                                    value.toInt().toString()
-                                },
-                                guideline = null
-                            ),
-                            chartScrollState = scrollState,
-                            isZoomEnabled = true
+                            chart = remember(chart1, chart2) { chart1 + chart2 },
+                            chartModelProducer = vm.composedChartEntryModelProducer,
+                            startAxis = rememberStartAxis(guideline = null),
+                            endAxis = rememberEndAxis(),
+                            marker = rememberMarker(),
+                            runInitialAnimation = false,
                         )
                     }
                 }
             }
         }
     }
-    }
+}
+
+
+
+
+
 
