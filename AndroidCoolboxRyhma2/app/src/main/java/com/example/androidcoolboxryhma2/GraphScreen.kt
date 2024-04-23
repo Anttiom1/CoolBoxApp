@@ -383,16 +383,38 @@ fun GraphScreen(goToHome: () -> Unit,
                     }
                     if (selectedOption == "testi"){
                         vm.composedChartEntryModelProducer.runTransaction {
+                            vm.getDailyAverageTemperature()
+                            vm.getDailyEnergyConsumption()
                             add(datasetForModel)
                             add(datasetForModel2)
                         }
-                        val chart1 = lineChart(targetVerticalAxisPosition = AxisPosition.Vertical.End, lines = datasetLineSpec)
-                        val chart2 = lineChart(targetVerticalAxisPosition = AxisPosition.Vertical.End, lines =  datasetLineSpec)
+                        val chart1 = lineChart(axisValuesOverrider = AxisValuesOverrider.fixed(
+                            minY = -25f,
+                            maxY = 25f
+                        ),
+                            targetVerticalAxisPosition = AxisPosition.Vertical.Start,
+                            lines = datasetLineSpec)
+                        val chart2 = lineChart(axisValuesOverrider = AxisValuesOverrider.fixed(
+                            minY = 0f,
+                            maxY = 1f
+                        ),
+                            targetVerticalAxisPosition = AxisPosition.Vertical.End,
+                            lines = datasetLineSpec,)
                         Chart(
                             chart = remember(chart1, chart2) { chart1 + chart2 },
                             chartModelProducer = vm.composedChartEntryModelProducer,
-                            startAxis = rememberStartAxis(guideline = null),
-                            endAxis = rememberEndAxis(),
+                            startAxis = rememberStartAxis(
+                                guideline = null,
+                                valueFormatter = { value, _ ->
+                                value.round.toString() + "°C"
+                            },
+                                itemPlacer = AxisItemPlacer.Vertical.default(13)),
+                            endAxis = rememberEndAxis(
+                                itemPlacer = AxisItemPlacer.Vertical.default(13),
+                                valueFormatter = { value, _ ->
+                                    String.format("%.2f", value) + "kWh"
+                                }
+                            ),
                             marker = rememberMarker(),
                             runInitialAnimation = false,
                         )
