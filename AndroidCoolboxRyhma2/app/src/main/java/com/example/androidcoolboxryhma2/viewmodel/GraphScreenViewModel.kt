@@ -35,7 +35,8 @@ class GraphScreenViewModel: ViewModel() {
     val indoorTemperatureState: State<TemperaturesState> = _indoorTemperatureState
 
     private val _energyStateWeekly = mutableStateOf(EnergyState())
-    val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
+    val energyStateWeekly: State<EnergyState> = _energyStateWeekly
+
 
     private val _dateString = mutableStateOf("")
     val dateString: State<String> = _dateString
@@ -51,6 +52,7 @@ class GraphScreenViewModel: ViewModel() {
 
     private var year: Int = 0
     private var month: Int = 0
+    private var week: Int = 0
     private var day: Int = 0
     var initialTime: Long = 0
 
@@ -77,20 +79,16 @@ class GraphScreenViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 _energyStateWeekly.value = _energyStateWeekly.value.copy(loading = true)
-                val res = energyService.getWeeklyEnergyConsumption(month = month, day = day)
-                if (res.data.isNotEmpty()) {
-                    val totalConsumedAmount  = energyState.value.list.lastOrNull()?.totalConsumedAmount
-                    if (totalConsumedAmount != null) {
-                        _energyStateWeekly.value = _energyStateWeekly.value.copy(list = listOf(EnergyItem(year = year, month = month, day = day, hour = 0, totalConsumedAmount = totalConsumedAmount * 7)))
-                    }
-                } else {
-                    val totalConsumedAmount  = energyState.value.list.lastOrNull()?.totalConsumedAmount
-                    if (totalConsumedAmount != null) { _energyStateWeekly.value = _energyStateWeekly.value.copy(list = listOf(EnergyItem(year = year, month = month, day = day, hour = 0, totalConsumedAmount = totalConsumedAmount * 7)))
-                    }
-                }
+                val res = energyService.getWeeklyEnergyConsumption(week = week)
+                _energyStateWeekly.value = _energyStateWeekly.value.copy(list = res.data)
+                val total = _energyStateWeekly.value.list.sumByDouble { it.totalConsumedAmount.toDouble() }
+                val formattedTotal = String.format("%.3f", total)
+                _energyStateWeekly.value = _energyStateWeekly.value.copy(total = formattedTotal)
+
             }
             catch (e: Exception){
                 _energyStateWeekly.value = _energyStateWeekly.value.copy(error = e.toString())
+                Log.d("joona", "${_energyStateWeekly.value.error}")
             }
             finally {
                 _energyStateWeekly.value = _energyStateWeekly.value.copy(loading = false)
@@ -145,10 +143,12 @@ class GraphScreenViewModel: ViewModel() {
 
         year = calendar.get(Calendar.YEAR)
         month = calendar.get(Calendar.MONTH) + 1
+        week = calendar.get(Calendar.WEEK_OF_YEAR)
         day = calendar.get(Calendar.DAY_OF_MONTH)
         val formattedDate = (SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time))
         _dateString.value = formattedDate
         getCombinedData()
+        getWeeklyEnergyConsumption()
 
     }
 

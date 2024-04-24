@@ -13,8 +13,8 @@ interface EnergyApi{
     @GET("energy/{month}/{day}")
     suspend fun getDailyEnergyConsumption(@Path("month") month: Int, @Path("day") day: Int): EnergyData
 
-    @GET("energy/{month}/{day}")
-    suspend fun getWeeklyEnergyConsumption(@Path("month") month: Int, @Path("day") day: Int): EnergyData
+    @GET("energy/{week}")
+    suspend fun getWeeklyEnergyConsumption(@Path("week") week: Int): EnergyData
 
 }
 
