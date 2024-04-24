@@ -154,7 +154,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                         ) {
-                            Text("In: ${vM.indoorTemperatureState.value?.list?.lastOrNull()?.value}°C")
+                            Text("In: ${vM._indoorTemperatureState.value.list.lastOrNull()?.value}°C")
                             Text("Out: ${vM.temperatureState.value.list.lastOrNull()?.value}°C")
 
                         }
@@ -178,7 +178,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                             ) {
-                                Text("Weekly: ${vM.energyStateWeekly.value?.list?.lastOrNull()?.totalConsumedAmount}")
+                                Text("Weekly: ${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount}")
                                 Text("Daily: ${vM.energyState.value.list.lastOrNull()?.totalConsumedAmount}")
                             }
                         }
