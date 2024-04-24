@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
@@ -13,7 +12,6 @@ import com.example.androidcoolboxryhma2.api.energyService
 import com.example.androidcoolboxryhma2.api.temperatureService
 import com.example.androidcoolboxryhma2.model.EnergyItem
 import com.example.androidcoolboxryhma2.model.EnergyState
-import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
 import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
@@ -29,12 +27,16 @@ import java.util.Locale
 class GraphScreenViewModel: ViewModel() {
     private val _temperaturesState = mutableStateOf(TemperaturesState())
     val temperatureState: State<TemperaturesState> = _temperaturesState
+
     private val _energyState = mutableStateOf(EnergyState())
     val energyState: State<EnergyState> = _energyState
-    public val _indoorTemperatureState = mutableStateOf(TemperaturesState())
-    val indoorTemperatureState: State<TemperaturesState?> = _indoorTemperatureState
-    public val _energyStateWeekly = mutableStateOf(EnergyState())
+
+    private val _indoorTemperatureState = mutableStateOf(TemperaturesState())
+    val indoorTemperatureState: State<TemperaturesState> = _indoorTemperatureState
+
+    private val _energyStateWeekly = mutableStateOf(EnergyState())
     val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
+
     private val _dateString = mutableStateOf("")
     val dateString: State<String> = _dateString
 
@@ -50,7 +52,6 @@ class GraphScreenViewModel: ViewModel() {
     private var year: Int = 0
     private var month: Int = 0
     private var day: Int = 0
-    //private var dateString: String = ""
     var initialTime: Long = 0
 
     init {
@@ -66,6 +67,7 @@ class GraphScreenViewModel: ViewModel() {
                 lineBackgroundShader = null
             )
         )
+        getLatestIndoorTemperature()
 
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
@@ -124,12 +126,8 @@ class GraphScreenViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 _indoorTemperatureState.value = _indoorTemperatureState.value.copy(loading = true)
-                val res = temperatureService.getLatestIndoorTemperature(month, day)
-                if (res.data.isNotEmpty()) {
-                    _indoorTemperatureState.value = _indoorTemperatureState.value.copy(list = listOf(TemperatureItem(deviceName = "sisäasema lämpöanturi", unitName = "Lämpötila", value = "18", unitValue = "°C", year = year, month = month, day = day, hour = 0, minute = 0, sec = 0)))
-                } else {
-                    _indoorTemperatureState.value = _indoorTemperatureState.value.copy(list = listOf(TemperatureItem(deviceName = "sisäasema lämpöanturi", unitName = "Lämpötila", value = "18", unitValue = "°C", year = year, month = month, day = day, hour = 0, minute = 0, sec = 0)))
-                }
+                val res = temperatureService.getLatestIndoorsTemperature()
+                _indoorTemperatureState.value = _indoorTemperatureState.value.copy(list = res.data)
             } catch (e: Exception) {
                 _indoorTemperatureState.value = _indoorTemperatureState.value.copy(error = e.toString())
             }

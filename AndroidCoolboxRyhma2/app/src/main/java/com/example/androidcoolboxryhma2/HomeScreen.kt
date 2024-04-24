@@ -92,6 +92,11 @@ fun HomeScreen(
 {
     val vm: HomeViewModel = viewModel()
     val vM: GraphScreenViewModel = viewModel()
+    var latestTemp: String = ""
+
+    for (item in vM.indoorTemperatureState.value.list){
+        latestTemp = item.value
+    }
 
     LaunchedEffect(key1 = vm.logoutState.value.logoutDone) {
         if (vm.logoutState.value.logoutDone) {
@@ -167,7 +172,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(5.dp))
                             Text(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "${vM._indoorTemperatureState.value.list.lastOrNull()?.value}°C",
+                                text = "${latestTemp}°C",
                                 fontSize = 20.sp)
 
                         }
@@ -211,7 +216,8 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(5.dp))
                             Text(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount} kwh",
+                                //text = "${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount} kwh",
+                                text = "asd",
                                 fontSize = 20.sp)
 
                         }
