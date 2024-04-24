@@ -1,9 +1,11 @@
 package com.example.androidcoolboxryhma2
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -132,60 +134,101 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(it)
-                        .height(100.dp)
+
                 ) {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(50.dp),
+                        .padding(40.dp),
                     text = "CoolBox",
                     fontSize = 32.sp
                 )
+                Spacer(modifier = Modifier.height(50.dp))
 
-                Row(
+                Column(
                     modifier = Modifier
-                        .height(100.dp)
+                        .height(200.dp)
+
                 ) {
-                    Column(
+                    Text(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
-                    ) {
-                        Text(
+                            .align(Alignment.CenterHorizontally),
+                        text = stringResource(id = R.string.Temperature),
+                        fontSize = 26.sp
+                    )
+                    Row(modifier = Modifier.padding(vertical = 40.dp))
+                    {
+                        Column(
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally), text = stringResource(id = R.string.Temperature)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
+                                .fillMaxWidth()
+                                .weight(1f)
                         ) {
-                            Text("In: ${vM._indoorTemperatureState.value.list.lastOrNull()?.value}°C")
-                            Text("Out: ${vM.temperatureState.value.list.lastOrNull()?.value}°C")
+                            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "In", fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                text = "${vM._indoorTemperatureState.value.list.lastOrNull()?.value}°C",
+                                fontSize = 20.sp)
+
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+
+                        ) {
+                            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "Out", fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                text = "${vM.temperatureState.value.list.lastOrNull()?.value}°C",
+                                fontSize = 20.sp)
 
                         }
                     }
 
-                    Column(
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                ) {
+                    Text(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
+                            .align(Alignment.CenterHorizontally),
+                        text = stringResource(id = R.string.ElectricityConsumption),
+                        fontSize = 26.sp
+                    )
+                    Row(modifier = Modifier.padding(vertical = 40.dp)
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxHeight()
-                                .weight(1f),
+                                .fillMaxWidth()
+                                .weight(1f)
                         ) {
+                            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "Weekly", fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
                             Text(
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally), text = stringResource(id = R.string.ElectricityConsumption)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                            ) {
-                                Text("Weekly: ${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount}")
-                                Text("Daily: ${vM.energyState.value.list.lastOrNull()?.totalConsumedAmount}")
-                            }
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                text = "${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount} kwh",
+                                fontSize = 20.sp)
+
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+
+                        ) {
+                            Text(modifier = Modifier.align(Alignment.CenterHorizontally), text = "Daily", fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                text = "${vM.energyState.value.list.lastOrNull()?.totalConsumedAmount} kwh",
+                                fontSize = 20.sp)
+
                         }
                     }
                 }
