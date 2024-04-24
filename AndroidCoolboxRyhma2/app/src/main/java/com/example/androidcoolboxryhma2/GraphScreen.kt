@@ -152,10 +152,6 @@ fun GraphScreen(goToHome: () -> Unit,
         }*/
     }
 
-    LaunchedEffect(key1 = vm.getDateString()){
-        //Log.d("antti4", "antti4")
-    }
-
     /*
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
@@ -224,7 +220,8 @@ fun GraphScreen(goToHome: () -> Unit,
                     .padding(it)
             ) {
                 Column {
-                    OutlinedTextField(value = vm.getDateString(),
+                    val dateString by vm.dateString
+                    OutlinedTextField(value = dateString,
                         modifier = Modifier
                             .padding(8.dp)
                             .fillMaxWidth(),

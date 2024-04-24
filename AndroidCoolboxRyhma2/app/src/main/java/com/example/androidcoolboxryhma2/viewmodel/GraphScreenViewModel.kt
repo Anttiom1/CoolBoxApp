@@ -35,6 +35,8 @@ class GraphScreenViewModel: ViewModel() {
     val indoorTemperatureState: State<TemperaturesState?> = _indoorTemperatureState
     public val _energyStateWeekly = mutableStateOf(EnergyState())
     val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
+    private val _dateString = mutableStateOf("")
+    val dateString: State<String> = _dateString
 
     internal val composedChartEntryModelProducer = ComposedChartEntryModelProducer.build()
     internal val temperatureModelProducer = ChartEntryModelProducer()
@@ -48,14 +50,8 @@ class GraphScreenViewModel: ViewModel() {
     private var year: Int = 0
     private var month: Int = 0
     private var day: Int = 0
-    private var dateString: String = ""
+    //private var dateString: String = ""
     var initialTime: Long = 0
-    fun getDateString(): String{
-        return dateString
-    }
-    private fun setDateString(date: String){
-        dateString = date
-    }
 
     init {
         temperatureLineSpec.add(
@@ -149,7 +145,8 @@ class GraphScreenViewModel: ViewModel() {
         year = calendar.get(Calendar.YEAR)
         month = calendar.get(Calendar.MONTH) + 1
         day = calendar.get(Calendar.DAY_OF_MONTH)
-        setDateString(SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time))
+        val formattedDate = (SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time))
+        _dateString.value = formattedDate
         getCombinedData()
 
     }
