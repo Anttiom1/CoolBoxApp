@@ -94,10 +94,15 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("homeScreen") {
                             HomeScreen(
+                                onMenuClick = {scope.launch { drawerState.open() }},
                                 goToGraph = {
                                     navController.navigate("graphScreen")
                                 }, logOut = {
-                                    navController.navigate("loginScreen")
+                                    navController.navigate("loginScreen"){
+                                        popUpTo("loginScreen"){
+                                            inclusive = true
+                                        }
+                                    }
                                 })
                         }
                         composable("graphScreen") {
