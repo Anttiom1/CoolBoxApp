@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -160,7 +159,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                         ) {
-                            Text("In: ${vM.indoorTemperatureState.value?.list?.lastOrNull()?.value}°C")
+                            Text("In: ${vM._indoorTemperatureState.value.list.lastOrNull()?.value}°C")
                             Text("Out: ${vM.temperatureState.value.list.lastOrNull()?.value}°C")
 
                         }
@@ -184,7 +183,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                             ) {
-                                Text("Weekly: ${vM.energyStateWeekly.value?.list?.lastOrNull()?.totalConsumedAmount}")
+                                Text("Weekly: ${vM._energyStateWeekly.value.list.lastOrNull()?.totalConsumedAmount}")
                                 Text("Daily: ${vM.energyState.value.list.lastOrNull()?.totalConsumedAmount}")
                             }
                         }
