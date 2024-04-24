@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -52,6 +53,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -70,6 +72,7 @@ import com.example.androidcoolboxryhma2.charts.CombinedChart
 import com.example.androidcoolboxryhma2.charts.ElectricityChart
 import com.example.androidcoolboxryhma2.charts.TemperatureChart
 import com.example.androidcoolboxryhma2.viewmodel.GraphScreenViewModel
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberEndAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
@@ -369,6 +372,13 @@ fun GraphScreen(goToHome: () -> Unit,
                                 )
                             }
                         }
+                    }
+                    when {
+                        vm.temperatureState.value.loading -> CircularProgressIndicator(
+                            modifier = Modifier.align(
+                                Alignment.CenterHorizontally
+                            )
+                        )
                     }
                     if (0 in selectedIndices && 1 in selectedIndices){
                         CombinedChart(modelProducer = vm.composedChartEntryModelProducer, temperatureLineSpec = vm.temperatureLineSpec, electricityLineSpec = vm.electricityLineSpec)
