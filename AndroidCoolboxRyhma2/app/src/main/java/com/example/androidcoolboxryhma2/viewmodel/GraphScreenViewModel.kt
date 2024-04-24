@@ -1,6 +1,8 @@
 package com.example.androidcoolboxryhma2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -14,6 +16,8 @@ import com.example.androidcoolboxryhma2.model.EnergyState
 import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
 import com.patrykandpatrick.vico.core.chart.line.LineChart
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
+import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.composed.ComposedChartEntryModelProducer
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -33,9 +37,13 @@ class GraphScreenViewModel: ViewModel() {
     val energyStateWeekly: State<EnergyState?> = _energyStateWeekly
 
     internal val composedChartEntryModelProducer = ComposedChartEntryModelProducer.build()
+    internal val temperatureModelProducer = ChartEntryModelProducer()
+    internal val electricityModelProducer = ChartEntryModelProducer()
 
-    val temperatureLineSpec = arrayListOf<LineChart.LineSpec>()
-    val electricityLineSpec = arrayListOf<LineChart.LineSpec>()
+    internal val temperatureLineSpec = arrayListOf<LineChart.LineSpec>()
+    internal val electricityLineSpec = arrayListOf<LineChart.LineSpec>()
+    private val datasetForTemperature = mutableStateListOf(listOf<FloatEntry>())
+    private val datasetForElectricity = mutableStateListOf(listOf<FloatEntry>())
 
     private var year: Int = 0
     private var month: Int = 0
@@ -50,7 +58,6 @@ class GraphScreenViewModel: ViewModel() {
     }
 
     init {
-
         temperatureLineSpec.add(
             LineChart.LineSpec(
                 lineColor = Color.Red.toArgb(),
@@ -66,10 +73,9 @@ class GraphScreenViewModel: ViewModel() {
 
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
-        getDailyAverageTemperature()
-        getLatestIndoorTemperature()
-        getDailyEnergyConsumption()
-        getWeeklyEnergyConsumption()
+
+        //getLatestIndoorTemperature()
+        //getWeeklyEnergyConsumption()
     }
 
     fun getDailyEnergyConsumption(){
@@ -78,6 +84,7 @@ class GraphScreenViewModel: ViewModel() {
                 _energyState.value = _energyState.value.copy(loading = true)
                 val res = energyService.getDailyEnergyConsumption(month = month, day = day)
                 _energyState.value = _energyState.value.copy(list = res.data)
+                testingSahko()
             }
             catch (e: Exception){
                 _energyState.value = _energyState.value.copy(error = e.toString())
@@ -116,9 +123,11 @@ class GraphScreenViewModel: ViewModel() {
     fun getDailyAverageTemperature(){
         viewModelScope.launch {
             try {
+                Log.d("antti", "antti1")
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
                 val res = temperatureService.getDailyAverageTemperature(month, day)
                 _temperaturesState.value = _temperaturesState.value.copy(list = res.data)
+                testingLampo()
             }
             catch (e: Exception){
                 _temperaturesState.value = _temperaturesState.value.copy(error = e.toString())
@@ -158,6 +167,48 @@ class GraphScreenViewModel: ViewModel() {
         month = calendar.get(Calendar.MONTH) + 1
         day = calendar.get(Calendar.DAY_OF_MONTH)
         setDateString(SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time))
+        getCombinedData()
 
+    }
+
+    fun testingSahko(){
+        val dataPoints = arrayListOf<FloatEntry>()
+        datasetForElectricity.clear()
+        // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
+        for (item in energyState.value.list) {
+            val floatValue = item.totalConsumedAmount
+            val xValue = item.hour.toFloat()
+            dataPoints.add(FloatEntry(x = xValue, y = floatValue))
+        }
+
+        if (dataPoints.isNotEmpty()) {
+            datasetForElectricity.add(dataPoints)
+            electricityModelProducer.setEntries(datasetForElectricity)
+        }
+    }
+
+    fun testingLampo(){
+        datasetForTemperature.clear()
+        val dataPoints = arrayListOf<FloatEntry>()
+        // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
+        for (item in temperatureState.value.list) {
+            val floatValue = item.value.toFloat()
+            val xValue = item.hour.toFloat()
+            dataPoints.add(FloatEntry(x = xValue, y = floatValue))
+        }
+
+        if (dataPoints.isNotEmpty()) {
+            datasetForTemperature.add(dataPoints)
+            temperatureModelProducer.setEntries(datasetForTemperature)
+        }
+    }
+
+    fun getCombinedData(){
+        getDailyAverageTemperature()
+        getDailyEnergyConsumption()
+        composedChartEntryModelProducer.runTransaction {
+            add(datasetForTemperature)
+            add(datasetForElectricity)
+        }
     }
 }

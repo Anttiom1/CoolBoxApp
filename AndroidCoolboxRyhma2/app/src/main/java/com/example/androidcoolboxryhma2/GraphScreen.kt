@@ -108,15 +108,11 @@ fun GraphScreen(goToHome: () -> Unit,
                 selectOption: (index: Int) -> Unit = {}) {
     val vm: GraphScreenViewModel = viewModel()
 
-    val temperatureModelProducer = remember { ChartEntryModelProducer() }
-    val electricityModelProducer = remember { ChartEntryModelProducer() }
-    val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
-    val datasetForModel2 = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val scrollState = rememberChartScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
-    val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus", "testi")
-    var selectedOption by remember { mutableStateOf(menuOptions[0])}
+    val (selectedIndices, onIndexSelected) = remember { mutableStateOf<Set<Int>>(setOf()) }
+    val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus")
 
 
     fun decreaseDay(){
@@ -125,12 +121,18 @@ fun GraphScreen(goToHome: () -> Unit,
         )
         datePickerState.selectedDateMillis = newTime
         vm.calculateDate(datePickerState.selectedDateMillis)
-        if (selectedOption == "Ulkolämpötila"){
+        /*
+        if (0 in selectedIndices && 1 in selectedIndices){
+            vm.getCombinedData()
+        }
+        else if (0 in selectedIndices){
             vm.getDailyAverageTemperature()
         }
-        if (selectedOption == "Sähkönkulutus"){
+        else if (1 in selectedIndices){
             vm.getDailyEnergyConsumption()
         }
+        */
+
     }
 
     fun incrementDay(){
@@ -139,20 +141,25 @@ fun GraphScreen(goToHome: () -> Unit,
         )
         datePickerState.selectedDateMillis = newTime
         vm.calculateDate(datePickerState.selectedDateMillis)
-        if (selectedOption == "Ulkolämpötila"){
+        /*if (0 in selectedIndices && 1 in selectedIndices){
+            vm.getCombinedData()
+        }
+        else if (0 in selectedIndices){
             vm.getDailyAverageTemperature()
         }
-        if (selectedOption == "Sähkönkulutus"){
+        else if (1 in selectedIndices){
             vm.getDailyEnergyConsumption()
-        }
-        if (selectedOption == "testi"){
-            vm.getDailyEnergyConsumption()
-            vm.getDailyAverageTemperature()
-        }
+        }*/
     }
+
+    LaunchedEffect(key1 = vm.getDateString()){
+        //Log.d("antti4", "antti4")
+    }
+
+    /*
     // LaunchedEffect aktivoituu aina kun lista muuttuu
     LaunchedEffect(key1 = vm.temperatureState.value.list) {
-        datasetForModel.clear()
+        vm.datasetForTemperature.clear()
         val dataPoints = arrayListOf<FloatEntry>()
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in vm.temperatureState.value.list) {
@@ -162,15 +169,18 @@ fun GraphScreen(goToHome: () -> Unit,
         }
 
         if (dataPoints.isNotEmpty()) {
-            datasetForModel.add(dataPoints)
-            temperatureModelProducer.setEntries(datasetForModel)
+            vm.datasetForTemperature.add(dataPoints)
+            vm.temperatureModelProducer.setEntries(vm.datasetForTemperature)
         }
     }
+    */
 
+
+    /*
     LaunchedEffect(key1 = vm.energyState.value.list) {
 
         val dataPoints = arrayListOf<FloatEntry>()
-        datasetForModel2.clear()
+        vm.datasetForElectricity.clear()
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in vm.energyState.value.list) {
             val floatValue = item.totalConsumedAmount
@@ -179,10 +189,11 @@ fun GraphScreen(goToHome: () -> Unit,
         }
 
         if (dataPoints.isNotEmpty()) {
-            datasetForModel2.add(dataPoints)
-            electricityModelProducer.setEntries(datasetForModel2)
+            vm.datasetForElectricity.add(dataPoints)
+            vm.electricityModelProducer.setEntries(vm.datasetForElectricity)
         }
     }
+    */
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -257,13 +268,17 @@ fun GraphScreen(goToHome: () -> Unit,
                                     onClick = {
                                         openDialog.value = false
                                         vm.calculateDate(datePickerState.selectedDateMillis)
-                                        if (selectedOption == "Ulkolämpötila") {
+                                        /*
+                                        if (0 in selectedIndices && 1 in selectedIndices){
+                                            vm.getCombinedData()
+                                        }
+                                        else if (0 in selectedIndices){
                                             vm.getDailyAverageTemperature()
                                         }
-                                        if (selectedOption == "Sähkönkulutus") {
+                                        else if (1 in selectedIndices){
                                             vm.getDailyEnergyConsumption()
                                         }
-
+                                        */
                                     },
                                     enabled = confirmEnabled.value
                                 ) {
@@ -285,38 +300,27 @@ fun GraphScreen(goToHome: () -> Unit,
                     }
                     val cornerRadius = 8.dp
 
-                    val (selectedIndex, onIndexSelected) = remember { mutableStateOf<Int?>(0) }
                     Row(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .padding(8.dp)
                             .fillMaxWidth()
                     ) {
                         menuOptions.forEachIndexed { index, item ->
-                            OutlinedButton(
-                                modifier = when (index) {
-                                    0 ->
-                                        Modifier
-                                            .offset(0.dp, 0.dp)
-                                            .zIndex(if (selectedIndex == index) 1f else 0f)
+                            val isSelected = index in selectedIndices
 
-                                    else ->
-                                        Modifier
-                                            .offset((-1 * index).dp, 0.dp)
-                                            .zIndex(if (selectedIndex == index) 1f else 0f)
-                                }
-                                    .weight(1F)
+                            OutlinedButton(
+                                modifier = Modifier
+                                    //.offset((-1 * index * 50).dp, 0.dp) // Adjust offset value as needed
+                                    .zIndex(if (isSelected) 1f else 0f)
+                                    .weight(1f)
                                     .fillMaxWidth(),
                                 onClick = {
-                                    onIndexSelected(index)
+                                    // Toggle the selected state of the button's index
+                                    onIndexSelected(if (isSelected) selectedIndices - index else selectedIndices + index)
+
+                                    // Call your functions or update state as needed
                                     selectOption(index)
-                                    selectedOption = item
-                                    if (selectedOption == "Sähkönkulutus") {
-                                        vm.getDailyEnergyConsumption()
-                                    }
-                                    if (selectedOption == "Ulkolämpötila") {
-                                        vm.getDailyAverageTemperature()
-                                    }
+
                                 },
                                 shape = when (index) {
                                     // left outer button
@@ -337,13 +341,13 @@ fun GraphScreen(goToHome: () -> Unit,
                                     else -> RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
                                 },
                                 border = BorderStroke(
-                                    1.dp, if (selectedIndex == index) {
+                                    1.dp, if (isSelected) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
                                         Color.DarkGray.copy(alpha = 0.75f)
                                     }
                                 ),
-                                colors = if (selectedIndex == index) {
+                                colors = if (isSelected) {
                                     // selected colors
                                     ButtonDefaults.outlinedButtonColors(
                                         containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
@@ -359,7 +363,7 @@ fun GraphScreen(goToHome: () -> Unit,
                             ) {
                                 Text(
                                     text = item,
-                                    color = if (selectedIndex == index) {
+                                    color = if (isSelected) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
                                         Color.DarkGray.copy(alpha = 0.9f)
@@ -369,23 +373,16 @@ fun GraphScreen(goToHome: () -> Unit,
                             }
                         }
                     }
-                    if (selectedOption == "Sähkönkulutus") {
-                        ElectricityChart(modelProducer = electricityModelProducer, scrollState = scrollState, datasetLineSpec = vm.electricityLineSpec)
-                    }
-                    if (selectedOption == "Ulkolämpötila") {
-                        TemperatureChart(modelProducer = temperatureModelProducer, scrollState = scrollState, datasetLineSpec = vm.temperatureLineSpec)
-                    }
-                    if (selectedOption == "testi"){
-                        vm.composedChartEntryModelProducer.runTransaction {
-                            vm.getDailyAverageTemperature()
-                            vm.getDailyEnergyConsumption()
-                            add(datasetForModel)
-                            add(datasetForModel2)
-                        }
+
+                    if (0 in selectedIndices && 1 in selectedIndices){
                         CombinedChart(
-                            temperatureLineSpec = vm.temperatureLineSpec,
-                            electricityLineSpec = vm.electricityLineSpec,
-                            modelProducer = vm.composedChartEntryModelProducer)
+                            modelProducer = vm.composedChartEntryModelProducer, temperatureLineSpec = vm.temperatureLineSpec, electricityLineSpec = vm.electricityLineSpec)
+                    }
+                    else if (1 in selectedIndices) {
+                        ElectricityChart(modelProducer = vm.electricityModelProducer, scrollState = scrollState, datasetLineSpec = vm.electricityLineSpec)
+                    }
+                    else if (0 in selectedIndices) {
+                        TemperatureChart(modelProducer = vm.temperatureModelProducer, scrollState = scrollState, datasetLineSpec = vm.temperatureLineSpec)
                     }
                 }
             }

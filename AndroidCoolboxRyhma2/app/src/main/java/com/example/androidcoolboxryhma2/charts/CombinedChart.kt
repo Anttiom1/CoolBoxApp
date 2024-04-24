@@ -45,6 +45,5 @@ fun CombinedChart(temperatureLineSpec: List<LineChart.LineSpec>, electricityLine
             }
         ),
         marker = rememberMarker(),
-        runInitialAnimation = false,
     )
 }
