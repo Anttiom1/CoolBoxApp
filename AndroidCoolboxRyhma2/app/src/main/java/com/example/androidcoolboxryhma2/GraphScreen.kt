@@ -44,6 +44,10 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.size.Dimension
+import com.example.androidcoolboxryhma2.charts.CombinedChart
+import com.example.androidcoolboxryhma2.charts.ElectricityChart
+import com.example.androidcoolboxryhma2.charts.TemperatureChart
 import com.example.androidcoolboxryhma2.viewmodel.GraphScreenViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
@@ -71,14 +75,14 @@ fun GraphScreen(goToHome: () -> Unit,
     val modelProducer = remember { ChartEntryModelProducer() }
     val columnModelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
-    val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
-    val columnLineSpec = remember { arrayListOf<LineComponent>() }
+    val datasetForModel2 = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val scrollState = rememberChartScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
     var expanded by remember { mutableStateOf(false)}
     val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus")
     var selectedOption by remember { mutableStateOf(menuOptions[0])}
+
 
     fun decreaseDay(){
         val newTime = datePickerState.selectedDateMillis?.minus(
@@ -256,93 +260,23 @@ fun GraphScreen(goToHome: () -> Unit,
                     ) {
                         DatePicker(state = datePickerState)
                     }
-                }
-                Card(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {expanded = !expanded }) {
-                            TextField(
-                                value = selectedOption,
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
-                                    expanded = expanded)},
-                                modifier = Modifier.menuAnchor()
-                            )
-                            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }
-                            ) {
-                                menuOptions.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = { Text(text = item) },
-                                        onClick = {
-                                            selectedOption = item
-                                            if (selectedOption == "Sähkönkulutus" ){
-                                                vm.getDailyEnergyConsumption()
-                                            }
-                                            if (selectedOption == "Ulkolämpötila" ){
-                                                vm.getDailyAverageTemperature()
-                                            }
-                                            expanded = false
-                                        })
-                                    }
-                                }
-                            }
-                            if (selectedOption == "Sähkönkulutus"){
-                                val marker = rememberMarker()
-                                Chart(
-                                    marker = marker,
-                                    startAxis = rememberStartAxis(
-                                        itemPlacer = AxisItemPlacer.Vertical.default(13),
-                                        valueFormatter = {value, _ ->
-                                            String.format("%.2f" , value) + "kWh"
-                                        }
-                                    ),
-                                    bottomAxis = rememberBottomAxis(
-                                        valueFormatter = {value, _ ->
-                                            value.toInt().toString()
-                                        }
-                                    ),
-                                    chartModelProducer = columnModelProducer,
-                                    modifier = Modifier.fillMaxSize(),
-                                    chart = lineChart(
-                                        axisValuesOverrider = AxisValuesOverrider.fixed(minY = 0f, maxY = 1f),
-                                        lines = datasetLineSpec,
-
-                                    )
-                                )
-                            }
-                            if (selectedOption == "Ulkolämpötila"){
-                                val marker = rememberMarker()
-                                val label = TextComponent.Builder()
-
-                                Chart(
-                                    modifier = Modifier.fillMaxSize(),
-                                    marker = marker,
-                                    chart = lineChart(
-                                        axisValuesOverrider = AxisValuesOverrider.fixed(minY = -25f, maxY = 25f),
-                                        lines = datasetLineSpec
-                                    ),
-                                    chartModelProducer = modelProducer,
-
-                                    startAxis = rememberStartAxis(
-                                        valueFormatter = { value, _ ->
-                                            value.round.toString() + "°C"
-                                        },
-                                        itemPlacer = AxisItemPlacer.Vertical.default(13)
-                                    ),
-
-                                    bottomAxis = rememberBottomAxis(
-                                        label = label.build(),
-                                        valueFormatter = { value, _ ->
-                                            value.toInt().toString()
-                                        },
-                                        guideline = null
-                                    ),
-                                    chartScrollState = scrollState,
-                                    isZoomEnabled = true
-                                )
-                            }
+                    if (selectedOption == "Sähkönkulutus") {
+                        ElectricityChart(modelProducer = electricityModelProducer, scrollState = scrollState, datasetLineSpec = vm.electricityLineSpec)
+                    }
+                    if (selectedOption == "Ulkolämpötila") {
+                        TemperatureChart(modelProducer = temperatureModelProducer, scrollState = scrollState, datasetLineSpec = vm.temperatureLineSpec)
+                    }
+                    if (selectedOption == "testi"){
+                        vm.composedChartEntryModelProducer.runTransaction {
+                            vm.getDailyAverageTemperature()
+                            vm.getDailyEnergyConsumption()
+                            add(datasetForModel)
+                            add(datasetForModel2)
+                        }
+                        CombinedChart(
+                            temperatureLineSpec = vm.temperatureLineSpec,
+                            electricityLineSpec = vm.electricityLineSpec,
+                            modelProducer = vm.composedChartEntryModelProducer)
                     }
                 }
             }
