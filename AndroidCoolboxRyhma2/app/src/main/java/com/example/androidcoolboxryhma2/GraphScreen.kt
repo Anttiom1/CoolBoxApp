@@ -373,10 +373,8 @@ fun GraphScreen(goToHome: () -> Unit,
                             }
                         }
                     }
-
                     if (0 in selectedIndices && 1 in selectedIndices){
-                        CombinedChart(
-                            modelProducer = vm.composedChartEntryModelProducer, temperatureLineSpec = vm.temperatureLineSpec, electricityLineSpec = vm.electricityLineSpec)
+                        CombinedChart(modelProducer = vm.composedChartEntryModelProducer, temperatureLineSpec = vm.temperatureLineSpec, electricityLineSpec = vm.electricityLineSpec)
                     }
                     else if (1 in selectedIndices) {
                         ElectricityChart(modelProducer = vm.electricityModelProducer, scrollState = scrollState, datasetLineSpec = vm.electricityLineSpec)

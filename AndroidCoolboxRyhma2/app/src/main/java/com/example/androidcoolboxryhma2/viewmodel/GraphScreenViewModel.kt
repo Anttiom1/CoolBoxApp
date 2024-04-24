@@ -73,26 +73,6 @@ class GraphScreenViewModel: ViewModel() {
 
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
-
-        //getLatestIndoorTemperature()
-        //getWeeklyEnergyConsumption()
-    }
-
-    fun getDailyEnergyConsumption(){
-        viewModelScope.launch {
-            try {
-                _energyState.value = _energyState.value.copy(loading = true)
-                val res = energyService.getDailyEnergyConsumption(month = month, day = day)
-                _energyState.value = _energyState.value.copy(list = res.data)
-                testingSahko()
-            }
-            catch (e: Exception){
-                _energyState.value = _energyState.value.copy(error = e.toString())
-            }
-            finally {
-                _energyState.value = _energyState.value.copy(loading = false)
-            }
-        }
     }
 
     private fun getWeeklyEnergyConsumption(){
@@ -120,14 +100,17 @@ class GraphScreenViewModel: ViewModel() {
         }
     }
 
-    fun getDailyAverageTemperature(){
+    fun getCombinedData(){
         viewModelScope.launch {
             try {
-                Log.d("antti", "antti1")
                 _temperaturesState.value = _temperaturesState.value.copy(loading = true)
                 val res = temperatureService.getDailyAverageTemperature(month, day)
                 _temperaturesState.value = _temperaturesState.value.copy(list = res.data)
-                testingLampo()
+
+                _energyState.value = _energyState.value.copy(loading = true)
+                val res2 = energyService.getDailyEnergyConsumption(month = month, day = day)
+                _energyState.value = _energyState.value.copy(list = res2.data)
+                setDataToCharts()
             }
             catch (e: Exception){
                 _temperaturesState.value = _temperaturesState.value.copy(error = e.toString())
@@ -171,25 +154,11 @@ class GraphScreenViewModel: ViewModel() {
 
     }
 
-    fun testingSahko(){
-        val dataPoints = arrayListOf<FloatEntry>()
-        datasetForElectricity.clear()
-        // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
-        for (item in energyState.value.list) {
-            val floatValue = item.totalConsumedAmount
-            val xValue = item.hour.toFloat()
-            dataPoints.add(FloatEntry(x = xValue, y = floatValue))
-        }
-
-        if (dataPoints.isNotEmpty()) {
-            datasetForElectricity.add(dataPoints)
-            electricityModelProducer.setEntries(datasetForElectricity)
-        }
-    }
-
-    fun testingLampo(){
+    private fun setDataToCharts(){
         datasetForTemperature.clear()
+        datasetForElectricity.clear()
         val dataPoints = arrayListOf<FloatEntry>()
+        val dataPoints2 = arrayListOf<FloatEntry>()
         // for loopissa määritellään kaavion pisteet, X = pisteiden määrä Y = lämpötila arvo
         for (item in temperatureState.value.list) {
             val floatValue = item.value.toFloat()
@@ -197,18 +166,19 @@ class GraphScreenViewModel: ViewModel() {
             dataPoints.add(FloatEntry(x = xValue, y = floatValue))
         }
 
-        if (dataPoints.isNotEmpty()) {
-            datasetForTemperature.add(dataPoints)
-            temperatureModelProducer.setEntries(datasetForTemperature)
+        for (item in energyState.value.list) {
+            val floatValue = item.totalConsumedAmount
+            val xValue = item.hour.toFloat()
+            dataPoints2.add(FloatEntry(x = xValue, y = floatValue))
         }
-    }
-
-    fun getCombinedData(){
-        getDailyAverageTemperature()
-        getDailyEnergyConsumption()
+        datasetForTemperature.add(dataPoints)
+        datasetForElectricity.add(dataPoints2)
+        temperatureModelProducer.setEntries(datasetForTemperature)
+        electricityModelProducer.setEntries(datasetForElectricity)
         composedChartEntryModelProducer.runTransaction {
             add(datasetForTemperature)
             add(datasetForElectricity)
-        }
+            }
+
     }
 }

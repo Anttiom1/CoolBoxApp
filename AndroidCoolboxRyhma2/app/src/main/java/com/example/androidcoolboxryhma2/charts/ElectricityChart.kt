@@ -20,6 +20,7 @@ import com.patrykandpatrick.vico.core.extension.round
 fun ElectricityChart(modelProducer: ChartEntryModelProducer, scrollState: ChartScrollState, datasetLineSpec: List<LineChart.LineSpec>){
     val marker = rememberMarker()
     Chart(
+        chartScrollState = scrollState,
         marker = marker,
         startAxis = rememberStartAxis(
             itemPlacer = AxisItemPlacer.Vertical.default(13),

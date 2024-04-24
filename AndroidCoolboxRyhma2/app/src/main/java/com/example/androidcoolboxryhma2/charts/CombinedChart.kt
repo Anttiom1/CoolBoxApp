@@ -1,8 +1,11 @@
 package com.example.androidcoolboxryhma2.charts
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import com.example.androidcoolboxryhma2.rememberMarker
+import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberEndAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -30,6 +33,7 @@ fun CombinedChart(temperatureLineSpec: List<LineChart.LineSpec>, electricityLine
         targetVerticalAxisPosition = AxisPosition.Vertical.End,
         lines = electricityLineSpec,)
     Chart(
+        modifier = Modifier.fillMaxSize(),
         chart = remember(chart1, chart2) { chart1 + chart2 },
         chartModelProducer = modelProducer,
         startAxis = rememberStartAxis(
@@ -43,6 +47,12 @@ fun CombinedChart(temperatureLineSpec: List<LineChart.LineSpec>, electricityLine
             valueFormatter = { value, _ ->
                 String.format("%.2f", value) + "kWh"
             }
+        ),
+        bottomAxis = rememberBottomAxis(
+            valueFormatter = { value, _ ->
+                value.toInt().toString()
+            },
+            guideline = null
         ),
         marker = rememberMarker(),
     )
