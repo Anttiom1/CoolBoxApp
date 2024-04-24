@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class EnergyState(
     val list: List<EnergyItem> = emptyList(),
     val loading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val total: String = ""
 )
 data class EnergyItem(
     val year: Int,

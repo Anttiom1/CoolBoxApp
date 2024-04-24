@@ -107,6 +107,9 @@ class GraphScreenViewModel: ViewModel() {
                 val res2 = energyService.getDailyEnergyConsumption(month = month, day = day)
                 _energyState.value = _energyState.value.copy(list = res2.data)
                 setDataToCharts()
+                val total = _energyState.value.list.sumByDouble { it.totalConsumedAmount.toDouble() }
+                val formattedTotal = String.format("%.3f", total)
+                _energyState.value = _energyState.value.copy(total = formattedTotal)
             }
             catch (e: Exception){
                 _temperaturesState.value = _temperaturesState.value.copy(error = e.toString())

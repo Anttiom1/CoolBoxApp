@@ -226,7 +226,7 @@ fun HomeScreen(
 
                             Text(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = "${vM.energyState.value.list.lastOrNull()?.totalConsumedAmount} kwh",
+                                text = "${vM.energyState.value.total} kwh",
                                 fontSize = 20.sp)
 
                         }
