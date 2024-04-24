@@ -11,10 +11,6 @@ import com.example.androidcoolboxryhma2.model.EnergyState
 import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
 import com.patrykandpatrick.vico.core.entry.composed.ComposedChartEntryModelProducer
-import com.patrykandpatrick.vico.core.util.RandomEntriesGenerator
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -122,7 +118,7 @@ class GraphScreenViewModel: ViewModel() {
                 } else {
                     _indoorTemperatureState.value = _indoorTemperatureState.value.copy(list = listOf(TemperatureItem(deviceName = "sisäasema lämpöanturi", unitName = "Lämpötila", value = "18", unitValue = "°C", year = year, month = month, day = day, hour = 0, minute = 0, sec = 0)))
                 }
-                } catch (e: Exception) {
+            } catch (e: Exception) {
                 _indoorTemperatureState.value = _indoorTemperatureState.value.copy(error = e.toString())
             }
             finally {
