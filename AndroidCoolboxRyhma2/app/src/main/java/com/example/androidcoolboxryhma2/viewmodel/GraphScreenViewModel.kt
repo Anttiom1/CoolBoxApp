@@ -2,6 +2,9 @@ package com.example.androidcoolboxryhma2.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidcoolboxryhma2.api.energyService
@@ -10,6 +13,7 @@ import com.example.androidcoolboxryhma2.model.EnergyItem
 import com.example.androidcoolboxryhma2.model.EnergyState
 import com.example.androidcoolboxryhma2.model.TemperatureItem
 import com.example.androidcoolboxryhma2.model.TemperaturesState
+import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.entry.composed.ComposedChartEntryModelProducer
 import com.patrykandpatrick.vico.core.util.RandomEntriesGenerator
 import kotlinx.coroutines.currentCoroutineContext
@@ -34,6 +38,9 @@ class GraphScreenViewModel: ViewModel() {
 
     internal val composedChartEntryModelProducer = ComposedChartEntryModelProducer.build()
 
+    val temperatureLineSpec = arrayListOf<LineChart.LineSpec>()
+    val electricityLineSpec = arrayListOf<LineChart.LineSpec>()
+
     private var year: Int = 0
     private var month: Int = 0
     private var day: Int = 0
@@ -47,6 +54,20 @@ class GraphScreenViewModel: ViewModel() {
     }
 
     init {
+
+        temperatureLineSpec.add(
+            LineChart.LineSpec(
+                lineColor = Color.Red.toArgb(),
+                lineBackgroundShader = null
+            )
+        )
+        electricityLineSpec.add(
+            LineChart.LineSpec(
+                lineColor = Color.Blue.toArgb(),
+                lineBackgroundShader = null
+            )
+        )
+
         initialTime = Instant.now().toEpochMilli()
         calculateDate(initialTime)
         getDailyAverageTemperature()

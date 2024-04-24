@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.size.Dimension
+import com.example.androidcoolboxryhma2.charts.CombinedChart
 import com.example.androidcoolboxryhma2.charts.ElectricityChart
 import com.example.androidcoolboxryhma2.charts.TemperatureChart
 import com.example.androidcoolboxryhma2.viewmodel.GraphScreenViewModel
@@ -111,19 +112,12 @@ fun GraphScreen(goToHome: () -> Unit,
     val electricityModelProducer = remember { ChartEntryModelProducer() }
     val datasetForModel = remember { mutableStateListOf(listOf<FloatEntry>()) }
     val datasetForModel2 = remember { mutableStateListOf(listOf<FloatEntry>()) }
-    val datasetLineSpec = remember { arrayListOf<LineChart.LineSpec>() }
     val scrollState = rememberChartScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(vm.initialTime)
     val menuOptions = arrayOf("Ulkolämpötila", "Sähkönkulutus", "testi")
     var selectedOption by remember { mutableStateOf(menuOptions[0])}
 
-    datasetLineSpec.add(
-        LineChart.LineSpec(
-            lineColor = Red.toArgb(),
-            lineBackgroundShader = null
-        )
-    )
 
     fun decreaseDay(){
         val newTime = datePickerState.selectedDateMillis?.minus(
@@ -376,10 +370,10 @@ fun GraphScreen(goToHome: () -> Unit,
                         }
                     }
                     if (selectedOption == "Sähkönkulutus") {
-                        ElectricityChart(modelProducer = electricityModelProducer, scrollState = scrollState, datasetLineSpec = datasetLineSpec)
+                        ElectricityChart(modelProducer = electricityModelProducer, scrollState = scrollState, datasetLineSpec = vm.electricityLineSpec)
                     }
                     if (selectedOption == "Ulkolämpötila") {
-                        TemperatureChart(modelProducer = temperatureModelProducer, scrollState = scrollState, datasetLineSpec = datasetLineSpec)
+                        TemperatureChart(modelProducer = temperatureModelProducer, scrollState = scrollState, datasetLineSpec = vm.temperatureLineSpec)
                     }
                     if (selectedOption == "testi"){
                         vm.composedChartEntryModelProducer.runTransaction {
@@ -388,36 +382,10 @@ fun GraphScreen(goToHome: () -> Unit,
                             add(datasetForModel)
                             add(datasetForModel2)
                         }
-                        val chart1 = lineChart(axisValuesOverrider = AxisValuesOverrider.fixed(
-                            minY = -25f,
-                            maxY = 25f
-                        ),
-                            targetVerticalAxisPosition = AxisPosition.Vertical.Start,
-                            lines = datasetLineSpec)
-                        val chart2 = lineChart(axisValuesOverrider = AxisValuesOverrider.fixed(
-                            minY = 0f,
-                            maxY = 1f
-                        ),
-                            targetVerticalAxisPosition = AxisPosition.Vertical.End,
-                            lines = datasetLineSpec,)
-                        Chart(
-                            chart = remember(chart1, chart2) { chart1 + chart2 },
-                            chartModelProducer = vm.composedChartEntryModelProducer,
-                            startAxis = rememberStartAxis(
-                                guideline = null,
-                                valueFormatter = { value, _ ->
-                                value.round.toString() + "°C"
-                            },
-                                itemPlacer = AxisItemPlacer.Vertical.default(13)),
-                            endAxis = rememberEndAxis(
-                                itemPlacer = AxisItemPlacer.Vertical.default(13),
-                                valueFormatter = { value, _ ->
-                                    String.format("%.2f", value) + "kWh"
-                                }
-                            ),
-                            marker = rememberMarker(),
-                            runInitialAnimation = false,
-                        )
+                        CombinedChart(
+                            temperatureLineSpec = vm.temperatureLineSpec,
+                            electricityLineSpec = vm.electricityLineSpec,
+                            modelProducer = vm.composedChartEntryModelProducer)
                     }
                 }
             }
